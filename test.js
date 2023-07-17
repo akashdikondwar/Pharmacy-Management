@@ -15,3 +15,5 @@ const transaction=require('./transaction')
 // login.getBillerId("akash",(result)=>{
 //     console.log(result)
 // })
+
+console.log(Date.now());

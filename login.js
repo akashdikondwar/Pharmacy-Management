@@ -32,57 +32,69 @@ class Login {
 
     checkIdPass(callback)     //checking from database...
     {
-        this.db.checkIdPass(this.getUserId(),this.getPassword(),(reply,billerid,transid)=>
+        this.db.checkIdPass(this.getUserId(),this.getPassword(),(reply,role,userid)=>
         {
-            callback(reply,billerid,transid);
+            callback(reply,role,userid);
         })
     }
+
+    addNewUser(username,Password,callback)
+    {
+        const query=`insert into login (username,password) values (?,?)`
+        const params=[username, Password]
+
+        con.query(query,params,(error,result)=>{
+            if(error){
+                console.log("error in addNewUser method in dbcommands: ")
+                throw error;
+            }
+            else 
+                callback(true);
+        })
+    }
+
+
 
     addNewLogin(callback)
     {
         this.db.checkifUserExist(this.getUserId(),(reply)=>{
-        if(reply===true)
-        {
-                callback("username already in use") ;//dada: check whats enum in java
-        }
+            if(reply===true)
+                    callback("username already in use") ;//dada: check whats enum in java
 
-        else if (reply===false)
-        {
-            this.db.addNewUser(this.getUserId(),this.getPassword(),(reply)=>{
-                if(reply==true)
-                callback("user added successfully");
-            })
-
-        }
+            else if (reply===false){
+                this.addNewUser(this.getUserId(),this.getPassword(),(reply)=>{
+                    if(reply==true)
+                    callback("user added successfully");
+                })
+            }
         })
     }
+
+
 
     changePass(newPassword, callback)//layer of security in api//learn autheticator videos. gaya bhaii switch off
     {
         query=`update login set password="${newPassword}" where username="${this.getUserId()} and password="${this.getPassword()}"`
-
         con.query(query,(error,result)=>{
-            if(error || result.length>1)
-            {
+            if(error || result.length>1){
                 console.log("*****error in change pass query")
                 throw error
             }
-            else{
+            else
                 callback('password changed successfully')
-            }
-
         })
     }
 
-    static updateTransaction(username){
-        const query=`update login set transactions=transactions+1 where username='${username}'`
-        con.query(query,(error,result)=>{
-            if(error)
-            throw error;
 
-            console.log('transaction updated!!')
-        })
-    }
+    // static updateTransaction(username){
+    //     const query=`update login set transactions=transactions+1 where username='${username}'`
+    //     con.query(query,(error,result)=>{
+    //         if(error)
+    //         throw error;
+
+    //         console.log('transaction updated!!')
+    //     })
+    // }
 
 
     static getUserDetails(username,callback){
@@ -95,24 +107,13 @@ class Login {
         })
     }
 
-    static getBillerId(username,callback){
+    static getUserid(username,callback){
         Login.getUserDetails(username,result=>{//here this.getuserdetails nhi chalega. since when we use it in other file, it won't recognise it.
             result.forEach(element => {
                 callback(element.userid)
             });
         })
     }
-
-
-    static getTransactionNo(username,callback)
-    {
-        Login.getUserDetails(username,result=>{
-            result.forEach(element => {
-                callback(element.transactions)
-            });
-        })
-    }
-
 
 }
 

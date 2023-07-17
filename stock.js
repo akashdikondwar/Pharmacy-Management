@@ -19,15 +19,15 @@ class Stock
         return this._price
     }
 
-    checkIfAvailable(callback)
+    static checkIfAvailable(medid,callback)
     {
-        const query=`select * from stock where medicine_name='${this._medName}'`
+        const query=`select * from stock where id='${medid}'`
         con.query(query,(error,result)=>{
             if(error){
                 console.log('error in checkifAvailable method in stock.js:')
                 throw error;
             }
-            if(result.length!==0 )
+            if(result.length===1 )
             {
                 console.log(result.length)   
                 console.log(result[0].Available_qty)         
@@ -38,16 +38,17 @@ class Stock
         })
     }
 
-    updateStock(buySell,callback)
+    
+    static updateStock(addRemove,medid,qty,callback)
     {
-        this.checkIfAvailable((reply,qty)=>{  
+        Stock.checkIfAvailable(medid,(reply,avl_qty)=>{  
             if(reply)
-            {   if(buySell=="buy")
-                qty=qty+ parseInt(this._qty);//here i had to do use parse int to convert to number. otherwise it was adding as a string;
-                else if(buySell=="sell")
-                qty=qty- parseInt(this._qty);
+            {   if(addRemove=="add")//add stock
+                qty=avl_qty+ parseInt(qty);//here i had to do use parse int to convert to number. otherwise it was adding as a string;
+                else if(addRemove=="Remove")// sell stock
+                qty=avl_qty- parseInt(qty);
 
-                const query=`update stock set available_qty=${qty} where medicine_name='${this._medName}'`            
+                const query=`update stock set available_qty=${qty} where id='${medid}'`            
                 con.query(query,(error,result)=>{
                     if(error){
                         console.log('error in Updatestock method:')
@@ -57,10 +58,11 @@ class Stock
                     callback(true)
                 })
             }
-
             else callback(false)
         })
     }
+
+
 
     similarMed(keyword,callback)
     {

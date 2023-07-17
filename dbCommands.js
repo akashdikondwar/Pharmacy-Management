@@ -20,24 +20,28 @@ class dbCommands
 
     checkIdPass(username,password,callback)
     {
-        const query=`select * from login where username="${username}" and password="${password}"`
-        const billerid=Login.getBillerId(username,(result)=>{return result})
+        console.log(username, password)
+        const query=`select * from login where username="${username}" and password="${password}"`            
 
         con.query(query,(error,result)=>{       //we dont need to show query errors to user, so we wont take error as callback, we'll only show it on console.
-            if(error){
-                console.log('*****error in checkidpass method of dbcommands')
-                throw error;
+            if(error)
+            throw error;
+
+            if(result.length===1){
+                var userid=null;
+                var role=null;
+                result.forEach(element => {
+                    userid=element.userid;
+                    role=element.role;
+                });
+                callback(true,role,userid)//also send transaction id.
             }
-            if(result.length===1)
 
-            transaction.getTransId(username,billerid,(transId)=>{
-            callback(true,billerid,transId)//also send transaction id.
-
-            })
             else
             callback(false)
         })
     }
+
 
 
 
@@ -46,7 +50,7 @@ class dbCommands
         const query=`select * from login where username= "${username}"`;
         //before i was returning directly queryexector function. inside the callback function, i was returning error and true and false; but that wasnt working.
 
-        this.queryExecutor(query,(error,result)=>{ 
+        con.query(query,(error,result)=>{ 
             if(error)
             throw error;
 
@@ -60,15 +64,15 @@ class dbCommands
     }
 
 
-    
+
+
     addNewUser(username,Password,callback)
     {
         const query=`insert into login (username,password) values (?,?)`
         const params=[username, Password]
 
-        this.queryExecutor(query,params,(error,result)=>{
-            if(error)
-            {
+        con.query(query,params,(error,result)=>{
+            if(error){
                 console.log("error in addNewUser method in dbcommands: ")
                 throw error;
             }

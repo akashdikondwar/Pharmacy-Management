@@ -47,10 +47,9 @@ class transaction
                             con.query(query,(error,result)=>{
                                 if(error)
                                 throw error;
-
-                                else callback(true);
                             })
-                    })
+                        })
+                        callback(true);
             } 
             
             else callback(false);
