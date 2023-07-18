@@ -71,14 +71,7 @@ app.post("/addnewuser", (req,res)=>{
 
     const userid=payload.userid;
     pendingTransactions.addPending(userid,medId,qty,(reply)=>{
-      if(reply){
-        Stock.updateStock('Remove',medId,qty,(reply)=>{
-        if(reply)
-        res.send(true)
-        else
-        res.send('addPending method returning false. see if latest transaction added in pending table');
-        })
-      }
+      
     })
   })
 
@@ -111,6 +104,10 @@ app.post("/addnewuser", (req,res)=>{
 //after pressing checkout button, dont send the html page data here, use pendingTransaction table to add into transaction history;
 
 
+
+app.get('/cancelPending',(req,res)=>{
+
+})
 
 
 app.post('/changePass',(req,res)=>//even if logged in take id, pass, and newpass again

@@ -11,10 +11,6 @@ class transaction
         this._customerId
     }
 
-    newTransaction()
-    {
-        const query=`insert into transaction ()`
-    }
 
 
 
@@ -23,14 +19,10 @@ class transaction
         const query=`select * from login where username='${username}'`
 
         con.query(query,(error,result)=>{
-            if(error){
-                console.log('error in getTransId method in transaction.js')
+            if(error)
                 throw error;
-            }
-
-                const transId=`${result[0].userid}${result[0].transactions}`
-                callback(transId);
-          
+            const transId=`${result[0].userid}${result[0].transactions}`
+            callback(transId);
         })
     }
 

@@ -41,26 +41,27 @@ class Stock
     
     static updateStock(addRemove,medid,qty,callback)
     {
-        Stock.checkIfAvailable(medid,(reply,avl_qty)=>{  
-            if(reply)
-            {   if(addRemove=="add")//add stock
-                qty=avl_qty+ parseInt(qty);//here i had to do use parse int to convert to number. otherwise it was adding as a string;
-                else if(addRemove=="Remove")// sell stock
-                qty=avl_qty- parseInt(qty);
-
-                const query=`update stock set available_qty=${qty} where id='${medid}'`            
+        var query=null;
+                if(addRemove==="add")
+                query=`update stock set available_qty=available_qty+${parseInt(qty)} where id=${medid}`            
+                else if(addRemove=="Remove")
+                query =`update stock set available_qty=available_qty-${qty} where id='${medid}'`            
                 con.query(query,(error,result)=>{
-                    if(error){
-                        console.log('error in Updatestock method:')
-                        throw error;
-                    }
-                    else
-                    callback(true)
-                })
-            }
-            else callback(false)
-        })
+                        if(error){
+                            console.log('value is less than available')
+                            throw error;
+                        }
+                        else
+                        callback(true)
+                    })
     }
+        
+    
+                            
+                        
+                    
+                
+                
 
 
 

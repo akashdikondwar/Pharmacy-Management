@@ -10,9 +10,11 @@ class Customer
         this.phone=phone
     }
     
-    checkIfCustomerExist(callback)
+
+
+    static checkIfCustomerExist(phone,callback)
     {
-        query=`select * from customer where phone= ${this.phone}`
+        query=`select * from customer where phone= ${phone}`
         con.query(query,(error,result)=>
         {
             if(error){
@@ -20,33 +22,33 @@ class Customer
                 throw error
             }
             else if(result.length===1)//error can be triple equal also
-            callback(true,result.customerid)//here directly written result.customerid. errormight occur
+            callback(true,result[0].customerid)//here directly written result.customerid. errormight occur
             else
             callback(false)
         })
     }
 
-    addNewCustomer(callback)
+
+
+    static addNewCustomer(phone,name,callback)//adds name and phone and again uses checkIfCustomerExist which returns customerid.
     {
-        this.checkIfCustomerExist((reply)=>{
-            if(reply===false)
-            {
-                query=`insert into customer (name,phone) values ("${this.name}",${this.phone})`
+        
+                query=`insert into customer (name,phone) values ("${name}",${phone})`
                 con.query(query,(error,result)=>{
-                    if(error)
-                    {
+                    if(error){
                         console.log('******error in addNewCustomer query: ');
                         throw error;
                     }
-                    else
-                    {
-                        const newCustomerId=result.customerid;
-                        callback(true,newCustomerId)
+                    else{
+                        Customer.checkIfCustomerExist(phone,(reply,customerid)=>{
+                        callback(reply,customerid)
+
+                        })
                     }
                 })
-            }
-        })
     }
+
+
 
     static fetchCustomer(phone,callback)
     {
@@ -61,7 +63,6 @@ class Customer
         callback(result);//this will return customer row.
         })
     }
-
 }
 
 module.exports=Customer;
