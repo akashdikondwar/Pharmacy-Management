@@ -1,4 +1,5 @@
 const con=require('./dbConnection');
+const Stock = require('./stock');
 const { updateStock } = require('./stock');
 
 class pendingTransactions{
@@ -15,7 +16,7 @@ class pendingTransactions{
                 if(error) throw error;
 
                 else{
-                    Stock.updateStock('Remove',medId,qty,(reply)=>{
+                    Stock.updateStock('Remove',medid,qty,(reply)=>{
                         if(reply)
                         callback(true)
                         else
@@ -84,7 +85,7 @@ class pendingTransactions{
             })
 
             const query2=`delete from pending_transactions where billerid=${userid} and med_id=${medid} and qty=${qty} limit 1`
-            con.query(query,(error,result)=>{
+            con.query(query2,(error,result)=>{
                 if(error) throw error;
                 
                 callback(true)

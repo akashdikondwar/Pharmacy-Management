@@ -65,7 +65,7 @@ class Stock
 
 
 
-    similarMed(keyword,callback)
+    static  similarMed(keyword,callback)
     {
         const query=`select * from stock where medicine_name like '${keyword}%'`
         con.query(query,(error,result)=>{

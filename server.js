@@ -8,6 +8,7 @@ const Stock = require('./stock');
 const transaction = require('./transaction');
 const pendingTransactions = require('./pendingTransactions');
 const Customer = require('./customer');
+const { raw } = require('mysql2');
 const app=express();
 
 app.use(cors())
@@ -65,13 +66,14 @@ app.post("/addnewuser", (req,res)=>{
     const medId=req.query.medid;
     const qty=req.query.qty;
 
-    const token=req.cookies.token;
-    const payload=jwt.verify(token,secretKey)
-    console.log(payload)
+    console.log(medId, qty);
+    // const token=req.cookies.token;
+    // const payload=jwt.verify(token,secretKey)
+    // console.log(payload)
 
-    const userid=payload.userid;
+    const userid=1234;//userid entering manually for testing. later uncomment token authorization.
     pendingTransactions.addPending(userid,medId,qty,(reply)=>{
-      
+      res.send(reply);
     })
   })
 
@@ -127,21 +129,23 @@ app.post('/changePass',(req,res)=>//even if logged in take id, pass, and newpass
     })
 })
 
+app.get('/removeOnePending',(req,res)=>{
+  const userid=1234;
+  const medid=req.query.medid;
+  const qty=req.query.qty;
 
+  pendingTransactions.cancelOnePending(userid,medid,qty,(reply)=>{
+    res.send(reply);
+  })
+})
 
 app.get("/searchMeds",(req,res)=>{
   var keyword=req.query.keyword;
-  var obj=new Stock();
 
-  obj.similarMed(keyword,(result)=>{
+  Stock.similarMed(keyword,(result)=>{
     res.send(result);
   })
-
 })
-
-
-
-
 
 
 app.post('/getCustomerId',(req,res)=>{
