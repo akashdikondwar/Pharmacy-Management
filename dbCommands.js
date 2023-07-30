@@ -45,14 +45,16 @@ class dbCommands
 
 
 
-    checkifUserExist(username,callback)
-    {
+    static checkifUserExist(username,callback)
+    {        
+        console.log(username+ 'this is from dbcommands')
+
         const query=`select * from login where username= "${username}"`;
         //before i was returning directly queryexector function. inside the callback function, i was returning error and true and false; but that wasnt working.
 
         con.query(query,(error,result)=>{ 
             if(error)
-            throw error;
+            console.log('error is in checkifuserexist method'+ error)
 
             else{
                 if(result.length!==0)
@@ -61,24 +63,6 @@ class dbCommands
                 callback(false)
             }
         })        
-    }
-
-
-
-
-    addNewUser(username,Password,callback)
-    {
-        const query=`insert into login (username,password) values (?,?)`
-        const params=[username, Password]
-
-        con.query(query,params,(error,result)=>{
-            if(error){
-                console.log("error in addNewUser method in dbcommands: ")
-                throw error;
-            }
-            else 
-                callback(true);
-        })
     }
 
     }

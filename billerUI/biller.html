@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="biller.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <title>BILLER</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="mainBody">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Navbar</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">New Transaction</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Discard</a>
+              </li>
+              
+              <!-- <li class="nav-item">
+                <a class="nav-link disabled">Disabled</a>
+              </li> -->
+            </ul>
+            <form class="d-flex" role="search" style="margin-right: 1.5%;">
+              <button id="signout-button" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" height="2.5em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg{fill:#d60000; }</style><path d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Medicine Search + Quantity -->
+      <div class="m-5">
+        <form>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Medicine:</span>
+                <!-- <input type="text" class="form-control" placeholder="Paracetamol" required> -->
+                <div>
+                    <input type="text" class="search-input" onkeyup="search(event)" aria-label="Search-Medicine" required>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <span class="input-group-text" style="background-color: white; border-top: none; border-bottom: none;"></span>
+                <span class="input-group-text">Quantity</span>
+                <input type="number" class="form-control" id="qty" placeholder="10" aria-label="Quantity" required>
+                <input style="border: none; margin-left: 1%;" type="submit" value="💊">
+            </div>
+        </form>
+    </div>
+
+    <!-- Medicine Table -->
+    <div class="m-5">
+        <div style="display: block">
+            <div style="display: inline;color: rgb(209, 0, 0); font-weight: bolder; margin-bottom: 1%;">Transaction ID: <span>278763748</div>
+            <div style="margin-bottom: 4px; display: inline; border: darkgray solid; float: right; padding: 1%; border-radius: 50px;"><span style="font-weight: bolder; font-family: Verdana, Geneva, Tahoma, sans-serif; color: darkslategray;">Total(₹): </span> <span>0.00</span></div>
+        </div>
+        <div style="width: 100%; height: 45vh; overflow-y: auto; ">
+            <table class="table table-hover table-striped-columns" style="border: solid; border-color: cadetblue; border-top: none; border-left: none; border-right: none; border-radius: 50px; ">
+                <thead style="position: sticky; top: 0; width: 100%;">
+                    <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" style="width: 35%; max-width: 35%; overflow-wrap: break-word;">Product Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Expiry Date</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                <tbody style="width: 100%; height: 100px; overflow-y: auto; " id="table_row">
+               <!--here table rows will be added dynamically-->
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            <Button class="btn btn-warning" id="checkoutButton" style="float: right; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; font-weight: bold;">Checkout|🛒</Button>
+        </div>
+    </div>
+    </div>
+
+
+  <div id="customerDetails" style="display: none;">
+    <div>
+      <label for="phone">Phone:</label>
+      <input type="number" id="phone" name="phone">
+
+      <button class=" btn btn-warning">Checkout</button>
+    </div>
+    <br>
+    <div id="newCustomerDetails" style="display: none;">
+      <form action="localhost:3000/addnewcustomer" method="get">
+      <label for="name">Name:</label>
+      <input type="text" name="name" id="name">
+        <br><br>
+      <label for="address">Address</label>
+      <input type="text" name="address" id="address">
+      </form>
+      
+    </div>
+    <br>
+  </div>
+
+
+    <script src="biller.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>

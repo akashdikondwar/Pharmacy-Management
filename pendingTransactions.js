@@ -28,8 +28,9 @@ class pendingTransactions{
 
 
 
-        static getAllPending(userid,callback){
-            const query=`select * from pending_transactions where billerid=${userid}`
+        static continuePending(userid,callback){
+            const query=`select stock.id, stock.medicine_Name, stock.category, stock.available_qty, stock.price, stock.expiry, pending_transactions.qty from stock join pending_transactions on pending_transactions.med_id=stock.id and pending_transactions.billerid=${userid}`;
+
             con.query(query,(error,result)=>{
                 if (error)
                     throw error;

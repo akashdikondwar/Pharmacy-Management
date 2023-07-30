@@ -1,6 +1,7 @@
 const con=require('./dbConnection')
 const dbCommands=require('./dbCommands');
 const { query } = require('express');
+const { checkIfAvailable } = require('./stock');
 
 class Login {
 
@@ -38,10 +39,10 @@ class Login {
         })
     }
 
-    addNewUser(username,Password,callback)
+    static addNewUser(username,Password,role,callback)
     {
-        const query=`insert into login (username,password) values (?,?)`
-        const params=[username, Password]
+        const query=`insert into login (username,password,role) values (?,?,?)`
+        const params=[username, Password,role]
 
         con.query(query,params,(error,result)=>{
             if(error){
@@ -55,16 +56,15 @@ class Login {
 
 
 
-    addNewLogin(callback)
-    {
-        this.db.checkifUserExist(this.getUserId(),(reply)=>{
+    static addNewLogin(username,password,role,callback)
+    {   console.log('this is from addnewlogin method'+username,password,role)
+        dbCommands.checkifUserExist(username,(reply)=>{
             if(reply===true)
-                    callback("username already in use") ;//dada: check whats enum in java
+                    callback(false) ;//dada: check whats enum in java
 
             else if (reply===false){
-                this.addNewUser(this.getUserId(),this.getPassword(),(reply)=>{
-                    if(reply==true)
-                    callback("user added successfully");
+                Login.addNewUser(username,password,role,(reply)=>{
+                    callback(reply);
                 })
             }
         })

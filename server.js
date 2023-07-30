@@ -8,17 +8,19 @@ const Stock = require('./stock');
 const transaction = require('./transaction');
 const pendingTransactions = require('./pendingTransactions');
 const Customer = require('./customer');
-const { raw } = require('mysql2');
 const app=express();
 
 app.use(cors())
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser())
+app.use(express.static('static'));//allows you to serve static files (such as HTML, CSS, JavaScript, images, and other resources) which are needed to be accessed to view html page properly.
 
 const secretKey='akash'
 
 
-
+app.get('/',(req,res)=>{
+  res.sendFile(__dirname+'/index.html');
+})
 
 app.post("/logout",(req,res)=>{
 res.cookie('token','')
@@ -27,12 +29,9 @@ res.send('logged out')
 
 
 
-
-
-
 app.post("/login",(req,res)=>
 {
-  const username=req.body.userid;
+  const username=req.body.username;
   const password=req.body.password;
   
   const newUser=new Login(username,password);//login object
@@ -42,36 +41,64 @@ app.post("/login",(req,res)=>
     if(reply==true){
       token=jwt.sign({username: username, userid: userid, role: role },secretKey)
       res.cookie('token',token)
-      res.send('logged in')
+      res.sendFile(__dirname+'/billerUI/biller.html');
     }
     else
-    res.send('invalid Credentials.. login again')
+    res.send('<h1>invalid Credentials.. login again</h1>')
   })
+})
+
+app.get('/continuePending',(req,res)=>{
+  const token=req.cookies.token;
+  const payload=jwt.verify(token,secretKey)
+  const userid=payload.userid;
+  console.log('token userid: '+userid);
+
+  pendingTransactions.continuePending(userid,(reply,result)=>{
+  if(reply)
+  res.send(result);
+  else
+  res.send(null);
 })
 
 
 
-app.post("/addnewuser", (req,res)=>{
-    const userid=req.body.userid;
-    const password=req.body.password;
-    const newUser=new Login(userid,password);
+})
 
-    newUser.addNewLogin((reply)=>{
-      res.send(reply);
-    })
+
+app.get('/cancelPending',(req,res)=>{
+
+})
+
+app.post("/addnewuser", (req,res)=>{
+    const username=req.body.username;
+    const password=req.body.password;
+    const role=req.body.role;
+
+    console.log(username,password,role)
+
+    Login.addNewLogin(username,password,role,(reply)=>{
+      if(reply)
+      res.send(`<h2>User:${username} with role: ${role} added successfully</h2>`);
+      else
+      res.send(`<h2>username=${username} already exists. use different username`)
+})
 })
 
 
   app.get('/addPending',(req,res)=>{
+
+    const token=req.cookies.token;
+  const payload=jwt.verify(token,secretKey)
+  const userid=payload.userid;
     const medId=req.query.medid;
     const qty=req.query.qty;
 
-    console.log(medId, qty);
+    // console.log(medId, qty);
     // const token=req.cookies.token;
     // const payload=jwt.verify(token,secretKey)
     // console.log(payload)
 
-    const userid=1234;//userid entering manually for testing. later uncomment token authorization.
     pendingTransactions.addPending(userid,medId,qty,(reply)=>{
       res.send(reply);
     })
@@ -105,13 +132,6 @@ app.post("/addnewuser", (req,res)=>{
 // that medid from sent data to fill the html table and send that medid and qty to server also to add in pending transaction table;
 //after pressing checkout button, dont send the html page data here, use pendingTransaction table to add into transaction history;
 
-
-
-app.get('/cancelPending',(req,res)=>{
-
-})
-
-
 app.post('/changePass',(req,res)=>//even if logged in take id, pass, and newpass again
 {
   const token=req.cookies.token;
@@ -130,7 +150,11 @@ app.post('/changePass',(req,res)=>//even if logged in take id, pass, and newpass
 })
 
 app.get('/removeOnePending',(req,res)=>{
-  const userid=1234;
+
+  const token=req.cookies.token;
+  const payload=jwt.verify(token,secretKey)
+  const userid=payload.userid;
+
   const medid=req.query.medid;
   const qty=req.query.qty;
 
@@ -148,14 +172,12 @@ app.get("/searchMeds",(req,res)=>{
 })
 
 
-app.post('/getCustomerId',(req,res)=>{
-  const phone=req.body.phone;
-  var name;
-  const customer=new Customer(name,phone)
+app.get('/getCustomerId',(req,res)=>{
+  const phone=req.query.phone;
 
-  customer.checkIfCustomerExist(reply,(customerid)=>{
+  Customer.checkIfCustomerExist(phone,(reply,customerid)=>{
     if(reply)
-    res.send(true,customerid,customer.name)
+    res.send(true,customerid)
 
     else{
       res.send(false)
@@ -165,9 +187,9 @@ app.post('/getCustomerId',(req,res)=>{
 
 
 app.post('/addNewCustomer',(req,res)=>{
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
-  const userid=payload.userid;
+  // const token=req.cookies.token;
+  // const payload=jwt.verify(token,secretKey)
+  // const userid=payload.userid;
 
   const phone=req.body.phone;
   const name=req.body.name;
