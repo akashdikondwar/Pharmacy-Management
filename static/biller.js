@@ -8,21 +8,40 @@ checkoutButton.addEventListener('click',event=>{
   console.log('testing checkoutbutton event listener')
   showFloatingForm();
   
+  // if(!event.target.checkoutButton)
+  // hideFloatingForm();
 });
+
+getCustomer.addEventListener('click',async event=>{
+  const phone=document.getElementById('phone').value;
+  const result= await fetch(`http://localhost:3000/getCustomerId?phone=${phone}`);
+  const customerid= await result.json();
+  
+  if(customerid!=='0000'){
+    await fetch(`http://localhost:3000/finalCheckout?customerid=${customerid}`)
+  }
+
+})
 
 let selectedIndex = -1;
 let filteredResults = [];
 let serialNo=0;
 
 document.addEventListener("DOMContentLoaded", async function() {
-  const response= await fetch('http://localhost:3000/continuePending')
-  var data=null;
-  if(response!==null)
-  data=await response.json();
+  const response= await fetch('http://localhost:3000/continuePending')//data always comes in raw format from server. to extract json, we must apply .json() method
+  var data=await response.json();
 
-  data.forEach(element=>{
-      addNewRow(element,element.qty);
-     });
+  // console.log('response value:' + String(data))
+  if(data.length!==0)
+  {
+    if(confirm('Pending Transaction Found. Press OK to continue.')){
+      data.forEach(element=>{
+          addNewRow(element,element.qty);
+         });
+    }
+    else await fetch('http://localhost:3000/cancelpending');
+
+  }
 })
 
 //  this will prevent form to get submitted when we select a result from result list
@@ -35,8 +54,6 @@ quantityInput.addEventListener("input", (event) => {
   if (parseInt(quantityInput.value) < 1) {
     quantityInput.value = "";
   }
-
-
 }); 
 
 quantityInput.addEventListener('keypress',async event=>{
@@ -192,11 +209,11 @@ searchInput.addEventListener('blur', () => {
 });
 
 function showFloatingForm(){
-  document.getElementById('customerDetails').style.display='block';
+  document.getElementById('customerDetails').style.display='flex';
   document.getElementById('mainBody').style.display='none';
 }
 
 function hideFloatingForm(){
   document.getElementById('customerDetails').style.display='none';
-  document.getElementById;
+  document.getElementById('mainBody').style.display='flex';
 }

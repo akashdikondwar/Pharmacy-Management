@@ -48,26 +48,24 @@ app.post("/login",(req,res)=>
   })
 })
 
-app.get('/continuePending',(req,res)=>{
+app.get('/continuePending', async (req,res)=>{
   const token=req.cookies.token;
   const payload=jwt.verify(token,secretKey)
   const userid=payload.userid;
-  console.log('token userid: '+userid);
-
-  pendingTransactions.continuePending(userid,(reply,result)=>{
-  if(reply)
-  res.send(result);
-  else
-  res.send(null);
+  pendingTransactions.getAllPending(userid,(result)=>{
+  res.send(result);// directly sending result here because first tried to send null. but one new thing learned. i was directly comparing the fetched response with null. but we first have to extract its json data. even if we sent data using res.send() still the data will go in json format. so apply json() method on fetched response and then compare it with null. otherwise directly send text 'null' using res.send().
 })
-
-
-
 })
 
 
 app.get('/cancelPending',(req,res)=>{
+  const token=req.cookies.token;
+  const payload=jwt.verify(token,secretKey)
+  const userid=payload.userid;
 
+  pendingTransactions.removeAllPending(userid,reply=>{
+    res.send(reply);
+  })
 })
 
 app.post("/addnewuser", (req,res)=>{
@@ -75,7 +73,7 @@ app.post("/addnewuser", (req,res)=>{
     const password=req.body.password;
     const role=req.body.role;
 
-    console.log(username,password,role)
+    console.log("printing in addnewuser api: "+username,password,role)
 
     Login.addNewLogin(username,password,role,(reply)=>{
       if(reply)
@@ -105,10 +103,9 @@ app.post("/addnewuser", (req,res)=>{
   })
 
 
-  app.post('/finalCheckout',(req,res)=>{
-    const phone=req.body.phone;
+  app.get('/finalCheckout',(req,res)=>{
     const transid=12345678;
-    const customerid=1111;
+    const customerid=req.query.customerid;
 
     const token=req.cookies.token;
     const payload=jwt.verify(token,secretKey)
@@ -116,15 +113,16 @@ app.post("/addnewuser", (req,res)=>{
     const billerid=payload.userid;
 
     transaction.finalCheckout(transid,customerid,billerid,(reply)=>{
-      if(reply)
+    if(reply){
       pendingTransactions.removeAllPending(billerid,reply=>{
         if(reply)
-        res.send('pending transactions added to final transactions')
+        res.send('<h1>pending transactions added to final transactions</h1>')
         else
-        res.send('pending transactions might not have added')
+        res.send('<h1>pending transactions might not have added</h1>')
       })
+    }
       else
-      res.send('final checkout sent false')
+      res.send('<h1>final checkout sent false</h1>')
     })
 
   })
@@ -136,7 +134,6 @@ app.post('/changePass',(req,res)=>//even if logged in take id, pass, and newpass
 {
   const token=req.cookies.token;
   const payload=jwt.verify(token,secretKey)
-  console.log(payload)
 
   const userid=payload.userid;
 
@@ -177,10 +174,13 @@ app.get('/getCustomerId',(req,res)=>{
 
   Customer.checkIfCustomerExist(phone,(reply,customerid)=>{
     if(reply)
-    res.send(true,customerid)
+    {
+      console.log('checking customerid :--'+ customerid)
+      res.send(String(customerid))// here if we directly send the customerid variable without stringifying, then it will interpret as a status code. and error will arise saying, use status code instead of using res.send()
+    }
 
     else{
-      res.send(false)
+      res.send('0000');//here directly used 0000. see if status or something can be used.
     }
   })
 })

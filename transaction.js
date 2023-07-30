@@ -29,12 +29,13 @@ class transaction
     static finalCheckout(transId,customerId,billerid,callback)
     {
         //after adding pending transactions into final table;
-        pendingTransactions.getAllPending(billerid,(reply,result)=>{
-            if(reply){
+        pendingTransactions.getAllPending(billerid,(result)=>{
+            if(result.length!==0){
+
                     result.forEach(element => {
-                        const medid=element.med_id;
+                        const medid=element.id;
                         const qty=element.qty;
-                        const query=`insert into transaction (transid,billerid,customerid,medid,qty) values (${transId},${billerid},${customerId},${medid},${qty})`
+                        const query=`insert into transactions (transid,billerid,customerid,medid,qty) values (${transId},${billerid},${customerId},${medid},${qty})`
 
                             con.query(query,(error,result)=>{
                                 if(error)

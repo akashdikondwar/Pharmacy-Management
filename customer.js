@@ -14,7 +14,7 @@ class Customer
 
     static checkIfCustomerExist(phone,callback)
     {
-        query=`select * from customer where phone= ${phone}`
+        const query=`select * from customer where Phone= ${phone}`
         con.query(query,(error,result)=>
         {
             if(error){

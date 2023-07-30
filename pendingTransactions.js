@@ -28,17 +28,12 @@ class pendingTransactions{
 
 
 
-        static continuePending(userid,callback){
+        static getAllPending(userid,callback){
             const query=`select stock.id, stock.medicine_Name, stock.category, stock.available_qty, stock.price, stock.expiry, pending_transactions.qty from stock join pending_transactions on pending_transactions.med_id=stock.id and pending_transactions.billerid=${userid}`;
-
             con.query(query,(error,result)=>{
                 if (error)
                     throw error;
-
-                if(result.length===0)
-                    callback(false,null)
-                else
-                    callback(true,result)
+                callback(result); //if we directly sent null in response, it will be sent as json object only. to send text, send in inverted commas.
             })
         }
 
@@ -46,7 +41,7 @@ class pendingTransactions{
 
         static  removeAllPending(userid,callback)
         {
-            const query=`delete from pending_transactions where billerid=${userid}`
+            const query=`delete from pending_transactions where billerid=${userid}`;
             con.query(query,(error,result)=>{
                 if(error)
                 throw error
