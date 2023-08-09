@@ -1,48 +1,94 @@
+
 const searchInput = document.querySelector(".search-input");
 const quantityInput = document.getElementById("qty");
 const searchResults = document.getElementById("searchResults");
-const tableRow=document.getElementById('table_row');
+const table_body=document.getElementById('table_body');
 const checkoutButton=document.getElementById('checkoutButton');
+const finalCheckout=document.getElementById('finalCheckout')
+const transid=document.getElementById('transid');
+const discard=document.getElementById('discard');
+const totalAmount=document.getElementById('totalAmount');
 
-checkoutButton.addEventListener('click',event=>{
-  console.log('testing checkoutbutton event listener')
-  showFloatingForm();
-  
-  // if(!event.target.checkoutButton)
-  // hideFloatingForm();
-});
 
-getCustomer.addEventListener('click',async event=>{
-  const phone=document.getElementById('phone').value;
-  const result= await fetch(`http://localhost:3000/getCustomerId?phone=${phone}`);
-  const customerid= await result.json();
-  
-  if(customerid!=='0000'){
-    await fetch(`http://localhost:3000/finalCheckout?customerid=${customerid}`)
-  }
+const customerName=document.getElementById('name')
+const address=document.getElementById('address')
+const phone=document.getElementById('phone')
 
-})
-
+let transIdsequence=null;
+let trasactionIncrementor=0;
 let selectedIndex = -1;
 let filteredResults = [];
 let serialNo=0;
 
+discard.addEventListener('click',async event=>{
+  await fetch('http://localhost:3000/cancelPending');//to cancel pending transaction from database.
+  table_body.innerHTML='';//to clear medicine table.
+  totalAmount.innerHTML=0.00;
+})
+
+
+checkoutButton.addEventListener('click',event=>{
+  showFloatingForm();
+});
+
+finalCheckout.addEventListener('click',async event=>{
+  const phone=document.getElementById('phone').value;
+  const result= await fetch(`http://localhost:3000/getCustomerId?phone=${phone}`);
+  const customerid= await result.json();
+
+  if(customerid!==false){
+    await fetch(`http://localhost:3000/finalCheckout?customerid=${customerid}&transid=${String(transid.innerText)}`)
+    hideFloatingForm();  
+    table_body.innerHTML='';//to clear medicine table
+    totalAmount.innerHTML=0.00;
+    serialNo=0;
+    transid.innerHTML=await getTransactionId()
+    alert('Transaction Successful!!');
+  }
+  else
+  {
+    //showing newCustomerPanel because phone no. not found in database.
+    document.getElementById('newPhone').value=document.getElementById('phone').value;
+    document.getElementById('newCustomerPanel').style.display='block';
+    document.getElementById('checkCustomerPanel').style.display='none';
+  }
+
+
+})
+
+document.getElementById('addNewCustomerAndCheckout').addEventListener('click',async event=>{
+  const response=await fetch(`http://localhost:3000/addNewCustomer?name=${customerName.value}&phone=${phone.value}&address=${address.value}`);
+  const data=await response.json();
+  console.log('response= '+data);
+  const customerid=data;
+  await fetch(`http://localhost:3000/finalCheckout?customerid=${customerid}&transid=${String(transid.innerText)}`)
+    hideFloatingForm();  
+    customerName.value='';
+    address.value='';
+    phone.value='';
+    table_body.innerHTML='';//to clear medicine table
+    totalAmount.innerHTML=0.00;
+    serialNo=0;
+    transid.innerHTML=await getTransactionId()
+    alert('Transaction Successful!!');
+
+})
+
 document.addEventListener("DOMContentLoaded", async function() {
   const response= await fetch('http://localhost:3000/continuePending')//data always comes in raw format from server. to extract json, we must apply .json() method
   var data=await response.json();
-
-  // console.log('response value:' + String(data))
-  if(data.length!==0)
-  {
+  await getTransIdSequence();
+  transid.innerHTML=await getTransactionId();//sometimes the value is not returned form the method while printing on webpage. hence we have to use await before calling the function while printing the output on webpage.
+  if(data.length!=0) {
     if(confirm('Pending Transaction Found. Press OK to continue.')){
       data.forEach(element=>{
-          addNewRow(element,element.qty);
-         });
+        addNewRow(element,element.qty);
+      });
     }
     else await fetch('http://localhost:3000/cancelpending');
-
   }
 })
+
 
 //  this will prevent form to get submitted when we select a result from result list
 searchInput.addEventListener("keypress", (event) => {
@@ -59,24 +105,25 @@ quantityInput.addEventListener("input", (event) => {
 quantityInput.addEventListener('keypress',async event=>{
   if(event.keyCode===13){      
     event.preventDefault();
-
     const qty=await quantityInput.value;
     const result=await filteredResults[selectedIndex];
-
     await addPending(result.id,qty);//adding new row data to database pending table.
-
-      addNewRow(result,qty);
-      searchInput.value='';
-      quantityInput.value='';
-      searchInput.focus();
+    addNewRow(result,qty);
+    searchInput.value='';
+    quantityInput.value='';
+    searchInput.focus();
   }
 })
 
+
 async function addNewRow(result,qty){
   const tr=document.createElement('tr');
-  tr.setAttribute('medid',result.id);    //here we are only saving medid in parent row element. we'll send this id to delete row from pending table 
-                                        //while deleting a row. but if tere are 
-                                        //two rows of same id and different qty, then there will be problem. hence update the qty here itself, dont create two rows of same id.
+  tr.setAttribute('medid',result.id);    
+  totalAmount.innerHTML=parseInt(totalAmount.innerHTML)+(parseInt(result.price)*parseInt(qty));
+
+
+  //here we are only saving medid in parent row element. we'll send this id to delete row from pending table while deleting a row. but if tere are 
+  //two rows of same id and different qty, then there will be problem. hence update the qty here itself, dont create two rows of same id.
 
   const srno =document.createElement('td')
   const med=document.createElement('td')
@@ -91,10 +138,11 @@ async function addNewRow(result,qty){
   button.style.float='right';
   button.textContent='delete';
   button.addEventListener('click',async (event)=>{
-      const medid=button.parentElement.getAttribute('medid');
-      await deletePendingFromDB(medid,qty);
-      
-      button.parentElement.remove();
+    const medid=button.parentElement.getAttribute('medid');
+    await deletePendingFromDB(medid,qty);
+    
+    button.parentElement.remove();
+    totalAmount.innerHTML=parseInt(totalAmount.innerHTML)-parseInt(button.parentElement.getElementsByTagName('td')[6].innerText);
   })
 
   srno.textContent=++serialNo;
@@ -105,7 +153,7 @@ async function addNewRow(result,qty){
   quant.textContent=qty;
   amount.textContent=parseInt(result.price)*parseInt(qty)
 
-  tableRow.appendChild(tr);
+  table_body.appendChild(tr);
 
   tr.appendChild(srno)
   tr.appendChild(med)
@@ -117,6 +165,7 @@ async function addNewRow(result,qty){
   tr.appendChild(button)
 }
 
+
 function showResults() {
   searchResults.innerHTML = '';
   filteredResults.forEach((result, index) => {
@@ -124,19 +173,47 @@ function showResults() {
       item.classList.add('search-item');
       item.textContent = result.medicine_Name +" --- "+ result.available_qty;
       item.setAttribute('data-index', index);//as searchresult comes, new div will be created and each div will get index in data-index attribute.
-      
       item.addEventListener('keypress', (event) => {
           if (event.keyCode === 13)
           selectResult(index);
       });                           // removed this because whats its use??
       searchResults.appendChild(item);
   });
+  if (filteredResults.length > 0)
+    searchResults.style.display = 'block';      //block means dikhega
+  else 
+    searchResults.style.display = 'none';
+}
 
-  if (filteredResults.length > 0) {
-      searchResults.style.display = 'block';      //block means dikhega
-  } else {
-      searchResults.style.display = 'none';
+async function  getTransIdSequence(){
+
+  //first check date
+  const date=getNewDate();
+  const data=await fetch (`http://localhost:3000/gettransidsequence?date=${date}`);
+  transIdsequence=await data.json();
+  console.log('transIdsequence='+transIdsequence)
+}
+
+function getNewDate(){
+  const date=new Date();
+  const currDate=String(date.getFullYear())  + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0');
+  return currDate;
+}
+
+async function logout(){
+const data=await fetch('http://localhost:3000/logout',{method:'post',});
+}
+
+async function getTransactionId(){
+  var transId=getNewDate();
+  console.log(transId)
+  transId = transId + String(transIdsequence + trasactionIncrementor).padStart(5, '0');
+  trasactionIncrementor++;
+  if(trasactionIncrementor==5){
+    trasactionIncrementor=0;
+    getTransIdSequence();
   }
+  return transId;
 }
 
 function hideResults() {
@@ -209,11 +286,13 @@ searchInput.addEventListener('blur', () => {
 });
 
 function showFloatingForm(){
-  document.getElementById('customerDetails').style.display='flex';
+  document.getElementById('checkCustomerPanel').style.display='block';
   document.getElementById('mainBody').style.display='none';
+  document.getElementById('newCustomerPanel').style.display='none';
 }
 
 function hideFloatingForm(){
-  document.getElementById('customerDetails').style.display='none';
-  document.getElementById('mainBody').style.display='flex';
+  document.getElementById('checkCustomerPanel').style.display='none';
+  document.getElementById('mainBody').style.display='block';
+  document.getElementById('newCustomerPanel').style.display='none';
 }

@@ -20,7 +20,6 @@ class dbCommands
 
     checkIdPass(username,password,callback)
     {
-        console.log(username, password)
         const query=`select * from login where username="${username}" and password="${password}"`            
 
         con.query(query,(error,result)=>{       //we dont need to show query errors to user, so we wont take error as callback, we'll only show it on console.

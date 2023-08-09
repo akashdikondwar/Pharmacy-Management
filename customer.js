@@ -30,13 +30,11 @@ class Customer
 
 
 
-    static addNewCustomer(phone,name,callback)//adds name and phone and again uses checkIfCustomerExist which returns customerid.
+    static addNewCustomer(phone,name,address,callback)//adds name and phone and again uses checkIfCustomerExist which returns customerid.
     {
-        
-                query=`insert into customer (name,phone) values ("${name}",${phone})`
+                const query=`insert into customer (name,phone,Address) values ("${name}",${phone},"${address}")`
                 con.query(query,(error,result)=>{
                     if(error){
-                        console.log('******error in addNewCustomer query: ');
                         throw error;
                     }
                     else{

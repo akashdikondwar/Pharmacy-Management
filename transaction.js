@@ -3,53 +3,62 @@ const con=require('./dbConnection')
 const pendingTransactions=require('./pendingTransactions')
 class transaction
 {
-    constructor(){
-        this._transId
-        this._billerId
-        this._date
-        this._medId
-        this._customerId
-    }
 
-
-
-
-    static getTransId(username,callback)
-    {
-        const query=`select * from login where username='${username}'`
-
-        con.query(query,(error,result)=>{
-            if(error)
-                throw error;
-            const transId=`${result[0].userid}${result[0].transactions}`
-            callback(transId);
-        })
-    }
-
-    static finalCheckout(transId,customerId,billerid,callback)
-    {
-        //after adding pending transactions into final table;
-        pendingTransactions.getAllPending(billerid,(result)=>{
-            if(result.length!==0){
-
-                    result.forEach(element => {
-                        const medid=element.id;
-                        const qty=element.qty;
-                        const query=`insert into transactions (transid,billerid,customerid,medid,qty) values (${transId},${billerid},${customerId},${medid},${qty})`
-
-                            con.query(query,(error,result)=>{
-                                if(error)
-                                throw error;
-                            })
-                        })
-                        callback(true);
+    static finalCheckout(transId,customerId,billerid,callback){
+        pendingTransactions.getAllPending(billerid,async (result)=>{
+        if(result.length!==0){
+                result.forEach(element => {
+                    const medid=element.id;
+                    const qty=element.qty;
+                    const query=`insert into transactions (transid,billerid,customerid,medid,qty,date) values (${transId},${billerid},${customerId},${medid},${qty},now())`
+                    con.query(query,(error,result)=>{
+                        if(error)
+                        throw error;
+                    })
+                })
+                pendingTransactions.removeAllPending(billerid,(reply)=>{
+                callback(reply);
+                })
             } 
-            
             else callback(false);
         });
+    }
+
+
+    static updateSequence(){
+
+    }
+
+
+    static async getTransIdSequence(date,callback){
+
+        //first check date
+        const dateQuery=`select date from transid where date=${date}`//here exists statement ka bhi use kar sakte. try once.
+        const sequenceResetQuery=`update transid set date=${date}, sequence=1`;
+        const updateQuery=`update transid set sequence=sequence+5;`
+        const query=`select sequence from transid`;
         
+        con.query(dateQuery,(error,result)=>{
+            if (error) throw error;
+
+            if(result.length!==1){
+                con.query(sequenceResetQuery,(error,result)=>{
+                    if (error) throw error;
+                })
+            }
+
+            con.query(query,(error,result)=>{
+                if (error) throw error;{
+                    callback(result[0].sequence);
+                }
+                con.query(updateQuery,(error,result)=>{
+                    if(error) throw error;
+                })
+            })   
+        })
+      
+
         
-        callback(true)
     }
 }
 

@@ -38,12 +38,12 @@
     color: #fff;
 }
 
-#signout-button {
+#logout-button {
     background: none;
     border: none;
 }
 
-#signout-button:hover {
+#logout-button:hover {
     background: transparent;
     fill: black;
     border: none;
@@ -73,7 +73,21 @@
     justify-content: center;
     align-items: center;
     padding: 4px;
-    border: gray solid;
+    border: gray ;
+    
     margin: auto;
-    width: 25%;
+    width: auto;
+    height: fit-content;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

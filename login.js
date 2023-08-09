@@ -4,16 +4,11 @@ const { query } = require('express');
 const { checkIfAvailable } = require('./stock');
 
 class Login {
-
-
-    constructor(userid,password)
-        {
-            this.db=new dbCommands();
-
-            this._userId=userid;
-            this._password=password;
-            
-        }
+    constructor(userid,password){
+        this.db=new dbCommands();
+        this._userId=userid;
+        this._password=password;
+    }
 
     getUserId(){
         return this._userId;
@@ -72,8 +67,7 @@ class Login {
 
 
 
-    changePass(newPassword, callback)//layer of security in api//learn autheticator videos. gaya bhaii switch off
-    {
+    changePass(newPassword, callback){//layer of security in api//learn autheticator videos. gaya bhaii switch off
         query=`update login set password="${newPassword}" where username="${this.getUserId()} and password="${this.getPassword()}"`
         con.query(query,(error,result)=>{
             if(error || result.length>1){
@@ -84,18 +78,6 @@ class Login {
                 callback('password changed successfully')
         })
     }
-
-
-    // static updateTransaction(username){
-    //     const query=`update login set transactions=transactions+1 where username='${username}'`
-    //     con.query(query,(error,result)=>{
-    //         if(error)
-    //         throw error;
-
-    //         console.log('transaction updated!!')
-    //     })
-    // }
-
 
     static getUserDetails(username,callback){
         const query=`select * from login where username='${username}'`

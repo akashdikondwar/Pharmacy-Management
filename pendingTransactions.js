@@ -66,15 +66,13 @@ class pendingTransactions{
                     qty=element.qty;
                     updateStock('add',medid,qty,()=>{  })
                 })
-
                 pendingTransactions.removeAllPending(userid,()=>{callback(true)});
             })
         }
 
 
 
-        static cancelOnePending(userid,medid,qty,callback) 
-        {
+        static cancelOnePending(userid,medid,qty,callback) {
             const query=`update stock set available_qty=available_qty+${qty} where id=${medid}`;
             con.query(query,(error,result)=>{
                 if(error) throw error;

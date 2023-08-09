@@ -7,8 +7,7 @@ const con=mysql.createConnection({
     database:'pharmadb'
 })
 
-con.connect((error)=>
-{
+con.connect((error)=>{
     if(error)
     throw error;
 
