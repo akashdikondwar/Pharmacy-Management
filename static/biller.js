@@ -28,6 +28,10 @@ discard.addEventListener('click',async event=>{
 
 
 checkoutButton.addEventListener('click',event=>{
+  if(table_body.rows.length==0){//if whole table row calculated then it will show length=1 since it will consider header row also. here only tableBody rows are calculated
+    alert('The table is empty!! ')
+  }
+  else
   showFloatingForm();
 });
 
@@ -117,14 +121,13 @@ quantityInput.addEventListener('keypress',async event=>{
 
 
 async function addNewRow(result,qty){
-  const tr=document.createElement('tr');
-  tr.setAttribute('medid',result.id);    
+  const tr=document.createElement('tr');//each time new row is created
+  table_body.appendChild(tr);//and appending new row in table body
+  tr.setAttribute('medid',result.id);//each row will get custom attribute medid. this medid will be catched by delete button to delete that med from db.
   totalAmount.innerHTML=parseInt(totalAmount.innerHTML)+(parseInt(result.price)*parseInt(qty));
-
 
   //here we are only saving medid in parent row element. we'll send this id to delete row from pending table while deleting a row. but if tere are 
   //two rows of same id and different qty, then there will be problem. hence update the qty here itself, dont create two rows of same id.
-
   const srno =document.createElement('td')
   const med=document.createElement('td')
   const cat=document.createElement('td')
@@ -137,12 +140,12 @@ async function addNewRow(result,qty){
   button.setAttribute('class','btn btn-danger');
   button.style.float='right';
   button.textContent='delete';
+
   button.addEventListener('click',async (event)=>{
     const medid=button.parentElement.getAttribute('medid');
-    await deletePendingFromDB(medid,qty);
-    
-    button.parentElement.remove();
-    totalAmount.innerHTML=parseInt(totalAmount.innerHTML)-parseInt(button.parentElement.getElementsByTagName('td')[6].innerText);
+    await deletePendingFromDB(medid,qty);//function to delete a medicine from db.
+    button.parentElement.remove();//to remove the row
+    totalAmount.innerHTML=parseInt(totalAmount.innerHTML)-parseInt(button.parentElement.getElementsByTagName('td')[6].innerText);//update the total amount on deleting a medicine.
   })
 
   srno.textContent=++serialNo;
@@ -153,8 +156,7 @@ async function addNewRow(result,qty){
   quant.textContent=qty;
   amount.textContent=parseInt(result.price)*parseInt(qty)
 
-  table_body.appendChild(tr);
-
+//append all td(table data created in row. these will automatically be added to corresponding column)
   tr.appendChild(srno)
   tr.appendChild(med)
   tr.appendChild(cat)
@@ -207,7 +209,7 @@ const data=await fetch('http://localhost:3000/logout',{method:'post',});
 async function getTransactionId(){
   var transId=getNewDate();
   console.log(transId)
-  transId = transId + String(transIdsequence + trasactionIncrementor).padStart(5, '0');
+  transId = transId + String(transIdsequence + trasactionIncrementor).padStart(5, '0');//padstart function makes sure the string length is 5. by adding zeroes at start if the string length<5
   trasactionIncrementor++;
   if(trasactionIncrementor==5){
     trasactionIncrementor=0;

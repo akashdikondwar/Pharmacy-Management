@@ -26,11 +26,11 @@ class Login {
     }
 
 
-    checkIdPass(callback)     //checking from database...
+    static getHashedPass(username,callback)     //checking from database...
     {
-        this.db.checkIdPass(this.getUserId(),this.getPassword(),(reply,role,userid)=>
+        dbCommands.getPasswordOfUser(username,(reply,role,userid,hashedPass)=>
         {
-            callback(reply,role,userid);
+            callback(reply,role,userid,hashedPass);
         })
     }
 
@@ -40,22 +40,18 @@ class Login {
         const params=[username, Password,role]
 
         con.query(query,params,(error,result)=>{
-            if(error){
-                console.log("error in addNewUser method in dbcommands: ")
-                throw error;
-            }
-            else 
-                callback(true);
+            if(error) throw error;
+            else callback(true);
         })
     }
 
 
 
     static addNewLogin(username,password,role,callback)
-    {   console.log('this is from addnewlogin method'+username,password,role)
+    {
         dbCommands.checkifUserExist(username,(reply)=>{
             if(reply===true)
-                    callback(false) ;//dada: check whats enum in java
+                callback(false);
 
             else if (reply===false){
                 Login.addNewUser(username,password,role,(reply)=>{

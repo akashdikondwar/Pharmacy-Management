@@ -39,17 +39,17 @@
       <!-- Medicine Search + Quantity -->
       <div class="m-5">
         <form>
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" style="display: flex; flex-direction: row;">
                 <span class="input-group-text">Medicine:</span>
                 <!-- <input type="text" class="form-control" placeholder="Paracetamol" required> -->
                 <div>
-                    <input type="text" class="search-input" onkeyup="search(event)" aria-label="Search-Medicine" required>
+                    <input type="text" class="search-input" onkeyup="search(event)" aria-label="Search-Medicine" required style="">
                     <div class="search-results" id="searchResults"></div>
                 </div>
                 <span class="input-group-text" style="background-color: white; border-top: none; border-bottom: none;"></span>
                 <span class="input-group-text">Quantity</span>
                 <input type="number" class="form-control" id="qty" placeholder="10" aria-label="Quantity" required>
-                <input style="border: none; margin-left: 1%;" type="submit" value="💊">
+                <input style="border: none; margin-left: 1%;" type="button" onclick="" value="💊">
             </div>
         </form>
     </div>
@@ -61,7 +61,7 @@
             <div style="margin-bottom: 4px; display: inline; border: darkgray solid; float: right; padding: 1%; border-radius: 50px;"><span style="font-weight: bolder; font-family: Verdana, Geneva, Tahoma, sans-serif; color: darkslategray;">Total(₹): </span> <span id="totalAmount">0.00</span></div>
         </div>
         <div style="width: 100%; height: 45vh; overflow-y: auto; ">
-            <table class="table table-hover table-striped-columns" style="border: solid; border-color: cadetblue; border-top: none; border-left: none; border-right: none; border-radius: 50px; ">
+            <table id="medTable" class="table table-hover table-striped-columns" style="border: solid; border-color: cadetblue; border-top: none; border-left: none; border-right: none; border-radius: 50px; ">
                 <thead style="position: sticky; top: 0; width: 100%;">
                     <tr>
                     <th scope="col">#</th>
@@ -86,24 +86,7 @@
     </div>
 
 
-    <div
-
-        id="checkCustomerPanel"
-        style="
-        display:none;
-          width: 30%;
-          margin: auto;
-          padding: 4%;
-          border: 5px solid;
-          border-radius: 10px;
-          font-weight: bolder;
-          border-color: teal;
-          font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
-            'Lucida Sans', Arial, sans-serif;
-          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-            0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        "
-      >
+    <div id="checkCustomerPanel">
             <!--username input for signin-->
 
         <div class="mb-3">
@@ -148,22 +131,7 @@
 
 
 
-      <div id="newCustomerPanel"
-        style="
-        display: none;
-          width: 50%;
-          margin: auto;
-          padding: 4%;
-          border: 5px solid;
-          border-radius: 10px;
-          font-weight: bolder;
-          border-color: teal;
-          font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
-            'Lucida Sans', Arial, sans-serif;
-          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-            0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        "
-      >
+      <div id="newCustomerPanel">
 
           <div class="mb-3">
             <label for="newPhone" class="form-label">Phone No:</label>
@@ -232,71 +200,3 @@
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
   </body>
   </html> 
-
-  <!-- <div id="customerDetails" style="
-  width: 30%;
-  margin: auto;
-  padding: 4%;
-  border: 5px solid;
-  border-radius: 10px;
-  font-weight: bolder;
-  border-color: teal;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
-    'Lucida Sans', Arial, sans-serif;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-    0 6px 20px 0 rgba(0, 0, 0, 0.19);
-"
->
-    <div>
-      <label for="phone">Phone:</label>
-      <input type="number" id="phone" name="phone">
-    </div>
-  
-    <div id="newCustomerDetails" style="display: none;">
-      <label for="name">Name:</label>
-      <input type="text" name="name" id="name">
-        <br>
-      <label for="address">Address</label>
-      <input type="text" name="address" id="address">
-    </div>
-
-    <div>
-      <button class="btn btn-warning" id="finalCheckout" >FinalCheckout</button>
-      <br>
-      <button class="btn btn-warning" id="addNewCustomerAndCheckout">Add New Customer & Checkout</button>
-    </div>
-  </div>
-
--->
-    
-
-
-
-
-<!-- <div id="customerDetails" style="display: none;">
-  <div>
-    <label for="phone">Phone:</label>
-    <input type="number" id="phone" name="phone">
-
-  </div>
-
-  <div id="newCustomerDetails" style="display: none;">
-    <label for="name">Name:</label>
-    <input type="text" name="name" id="name">
-      <br>
-    <label for="address">Address</label>
-    <input type="text" name="address" id="address">
-  </div>
-
-  <div>
-    <button class="btn btn-warning" id="finalCheckout" >FinalCheckout</button>
-    <br>
-    <button class="btn btn-warning" id="addNewCustomerAndCheckout">Add New Customer & Checkout</button>
-  </div>
-</div>
-
-
-  <script src="biller.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-</body>
-</html> -->

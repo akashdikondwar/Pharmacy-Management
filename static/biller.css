@@ -1,3 +1,37 @@
+
+
+#checkCustomerPanel{
+    transition: opacity 0.25s ease;
+    display:none;
+    width: 30%;
+    margin: auto;
+    padding: 4%;
+    border: 5px solid;
+    border-radius: 10px;
+    font-weight: bolder;
+    border-color: teal;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#newCustomerPanel{
+    transition: opacity 0.25s;
+    display: none;
+    width: 50%;
+    margin: auto;
+    padding: 4%;
+    border: 5px solid;
+    border-radius: 10px;
+    font-weight: bolder;
+    border-color: teal;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 .search-container {
     position: relative;
     display: inline-block;

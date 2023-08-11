@@ -2,6 +2,8 @@ const express=require('express')
 const cors=require('cors')
 const cookieParser=require('cookie-parser')
 const jwt=require('jsonwebtoken')
+const bcrypt=require('bcrypt')
+const hashingRounds=5;
 
 const Login = require('./login');
 const Stock = require('./stock');
@@ -35,16 +37,19 @@ app.post("/login",(req,res)=>
   const username=req.body.username;
   const password=req.body.password;
   
-  const newUser=new Login(username,password);//login object
   var token=null;
-  newUser.checkIdPass((reply,role,userid)=>{
+  Login.getHashedPass(username,(reply,role,userid,hashedPass)=>{
     if(reply==true){
-      token=jwt.sign({username: username, userid: userid, role: role },secretKey)
-      res.cookie('token',token)
-      res.sendFile(__dirname+'/billerUI/biller.html');
+      if(bcrypt.compare(password,hashedPass)){
+        token=jwt.sign({username: username, userid: userid, role: role },secretKey)
+        res.cookie('token',token)
+        res.sendFile(__dirname+'/billerUI/biller.html');
+      }
+      else
+        res.send('<h4>invalid Credentials. Password Incorrect</h4>')
     }
     else
-    res.send('<h1>invalid Credentials.. login again</h1>')
+    res.send('<h4>User Not Found</h4>')
   })
 })
 
@@ -92,14 +97,14 @@ app.get('/getTransIdSequence',(req,res)=>{
 })
 
 
-app.post("/addnewuser", (req,res)=>{
+app.post("/addnewuser", async (req,res)=>{
     const username=req.body.username;
     const password=req.body.password;
+
+    const hashedPass=await bcrypt.hash(password,hashingRounds);
     const role=req.body.role;
 
-    console.log("printing in addnewuser api: "+username,password,role)
-
-    Login.addNewLogin(username,password,role,(reply)=>{
+    Login.addNewLogin(username,hashedPass,role,(reply)=>{
       if(reply)
       res.send(`<h2>User:${username} with role: ${role} added successfully</h2>`);
       else

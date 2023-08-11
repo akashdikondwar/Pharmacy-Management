@@ -18,9 +18,9 @@ class dbCommands
         })
     }
 
-    checkIdPass(username,password,callback)
+    static getPasswordOfUser(username,callback)
     {
-        const query=`select * from login where username="${username}" and password="${password}"`            
+        const query=`select * from login where username="${username}"`            
 
         con.query(query,(error,result)=>{       //we dont need to show query errors to user, so we wont take error as callback, we'll only show it on console.
             if(error)
@@ -29,11 +29,13 @@ class dbCommands
             if(result.length===1){
                 var userid=null;
                 var role=null;
+                let hashedPass=null;
                 result.forEach(element => {
                     userid=element.userid;
                     role=element.role;
+                    hashedPass=element.password;
                 });
-                callback(true,role,userid)//also send transaction id.
+                callback(true,role,userid,hashedPass)
             }
 
             else
@@ -46,15 +48,11 @@ class dbCommands
 
     static checkifUserExist(username,callback)
     {        
-        console.log(username+ 'this is from dbcommands')
-
         const query=`select * from login where username= "${username}"`;
         //before i was returning directly queryexector function. inside the callback function, i was returning error and true and false; but that wasnt working.
 
         con.query(query,(error,result)=>{ 
-            if(error)
-            console.log('error is in checkifuserexist method'+ error)
-
+            if(error) throw error;
             else{
                 if(result.length!==0)
                 callback(true)
