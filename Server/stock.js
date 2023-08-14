@@ -55,19 +55,11 @@ class Stock
                         callback(true)
                     })
     }
-        
-    
-                            
-                        
                     
-                
-                
-
-
 
     static  similarMed(keyword,callback)
     {
-        const query=`select * from stock where medicine_name like '${keyword}%'`
+        const query=`select * from stock where medicine_name like '${keyword}%' and expiry > current_date`
         con.query(query,(error,result)=>{
             if(error){
                 console.log('error in similarMed method in stock.js')

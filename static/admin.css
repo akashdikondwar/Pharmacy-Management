@@ -37,7 +37,16 @@ body{
 /* #usersTable>table>thead>tr{
     height: 5vmax;
 } */
+#logout-button {
+    background: none;
+    border: none;
+}
 
+#logout-button:hover {
+    background: transparent;
+    border-bottom: solid brown;
+    transition-duration: 100ms;
+}
 #medTable > input{
     border-color: rgb(235, 235, 235);
     outline: none;

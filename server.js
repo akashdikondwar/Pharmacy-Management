@@ -4,6 +4,7 @@ const cookieParser=require('cookie-parser')
 const jwt=require('jsonwebtoken')
 const bcrypt=require('bcrypt')
 const hashingRounds=5;
+const port=3000;
 
 const Login = require('./Server/login');
 const Stock = require('./Server/stock');
@@ -21,6 +22,17 @@ const secretKey='akash'
 
 
 app.get('/',(req,res)=>{
+  const token=req.cookies.token;
+  if(token!=='null'){
+    payload=jwt.verify(token,secretKey)
+    const role=payload.role;
+  
+    if(role=='biller')
+    res.sendFile(__dirname+'/static/biller.html')
+    else if(role=='admin')
+    res.sendFile(__dirname+'/static/admin.html');
+  }
+  else
   res.sendFile(__dirname+'/index.html');
 })
 
@@ -38,9 +50,9 @@ app.post("/login",(req,res)=>
   const password=req.body.password;
   
   var token=null;
-  Login.getHashedPass(username,(reply,role,userid,hashedPass)=>{
+  Login.getHashedPass(username,async (reply,role,userid,hashedPass)=>{
     if(reply==true){
-      if(bcrypt.compare(password,hashedPass)){
+      if(await bcrypt.compare(password,hashedPass)){
         token=jwt.sign({username: username, userid: userid, role: role },secretKey)
         res.cookie('token',token)
         if(role==="biller")
@@ -219,7 +231,7 @@ app.get('/addNewCustomer',(req,res)=>{
 
 
 
-app.listen(3000, ()=>
+app.listen(port, ()=>
 {
-    console.log('listening on port 3000')
+    console.log(`listening on port ${port}`)
 })

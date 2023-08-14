@@ -196,7 +196,7 @@
         transition-property: opacity;
       "
     >
-      <form
+      <form id="signupForm"
         style="
           margin: auto;
           padding: 4%; 
@@ -238,7 +238,7 @@
             name="password"
             required
           />
-        </div>
+        </div>confirmSignupPass
         <!-- signup confirm password -->
         <div class="mb-3">
           <label for="confirmSignupPass" class="form-label"
@@ -295,6 +295,7 @@
         >
           <button
             type="submit"
+            id="signupSubmitButton"
             class="btn btn-outline-success"
             style="
               margin: 0;
@@ -347,6 +348,25 @@
           signUpPanelDiv.style.zIndex = "0";
           backButtonDiv.style.display = "none";
         });
+
+        const signupForm=document.getElementById('signupForm')
+        const confirmSignupPass=document.getElementById('confirmSignupPass');
+        const signupPass=document.getElementById('signupPass');
+        const signupSubmitButton=document.getElementById('signupSubmitButton')
+
+        confirmSignupPass.addEventListener('input',event=>{
+          if(confirmSignupPass.value !== signupPass.value){
+            confirmSignupPass.style.border='red solid'
+          }
+          else
+          confirmSignupPass.style.border='green solid'
+        })
+        
+          signupForm.addEventListener('submit',event=>{
+            if(confirmSignupPass.value!==signupPass.value)
+              event.preventDefault();
+          })
+        
     </script>
   </body>
 </html>
