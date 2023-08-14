@@ -76,11 +76,6 @@ class Stock
             callback(result); //isme object  banake nhi bhej sakte because, multiple results aa rahe hain...think we might send object also.
         })
     }
-
-    addToPending(id,qty,callback)
-    {
-        const query=`insert into pending set `
-    }
 }
 
 module.exports=Stock;

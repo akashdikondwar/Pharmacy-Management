@@ -93,6 +93,22 @@ class Login {
         })
     }
 
+    static getAllUsers(callback){
+        const query=`select userid,username,role from login order by role desc`;
+        con.query(query,(error,result)=>{
+            if (error) throw error;
+
+            callback(result);
+        })
+    }
+
+    static removeUser(userid,callback){
+        const query=`delete from login where userid=${userid}`;
+        con.query(query,(error,result)=>{
+            if (error) throw error;
+        })
+    }
+
 }
 
 module.exports=Login;

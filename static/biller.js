@@ -151,7 +151,7 @@ async function addNewRow(result,qty){
   srno.textContent=++serialNo;
   med.textContent=result.medicine_Name;
   cat.textContent=result.category;
-  exp.textContent=result.expiry;
+  exp.textContent=result.expiry.split('T')[0];
   pric.textContent=result.price;
   quant.textContent=qty;
   amount.textContent=parseInt(result.price)*parseInt(qty)

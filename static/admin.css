@@ -1,0 +1,46 @@
+body{
+    background-image: src='images/bg_img.jpg';
+    background-color: rgb(179, 207, 235);
+}
+
+.removeButton{
+    transition: all 0.4s;
+    display: inline-block;
+    border-radius: 5px;
+    color: rgb(194, 28, 28);
+}
+
+.removeButtonDiv{
+    width: 100%;
+    text-align: center;
+}
+
+.removeButton:hover{
+    color: white;
+    background-color: rgb(241, 23, 23);
+    
+}
+
+.nav-item>a{
+    margin-left: 1vmax;
+    transition: background-color 0.4s;
+
+}
+
+.nav-item > a:hover{
+    font-weight: 600;
+    color: rgb(80, 201, 144);
+    background-color: rgb(238, 234, 228);
+    border-radius: 10px;
+}
+
+/* #usersTable>table>thead>tr{
+    height: 5vmax;
+} */
+
+#medTable > input{
+    border-color: rgb(235, 235, 235);
+    outline: none;
+    width: 15vmax;
+    border-radius: 5px;
+}

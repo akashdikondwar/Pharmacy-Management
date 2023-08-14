@@ -5,11 +5,11 @@ const jwt=require('jsonwebtoken')
 const bcrypt=require('bcrypt')
 const hashingRounds=5;
 
-const Login = require('./login');
-const Stock = require('./stock');
-const transaction = require('./transaction');
-const pendingTransactions = require('./pendingTransactions');
-const Customer = require('./customer');
+const Login = require('./Server/login');
+const Stock = require('./Server/stock');
+const transaction = require('./Server/transaction');
+const pendingTransactions = require('./Server/pendingTransactions');
+const Customer = require('./Server/customer');
 const app=express();
 
 app.use(cors())
@@ -43,10 +43,13 @@ app.post("/login",(req,res)=>
       if(bcrypt.compare(password,hashedPass)){
         token=jwt.sign({username: username, userid: userid, role: role },secretKey)
         res.cookie('token',token)
-        res.sendFile(__dirname+'/billerUI/biller.html');
+        if(role==="biller")
+        res.sendFile(__dirname+'/static/biller.html');
+      else if(role==="admin")
+      res.sendFile(__dirname+'/static/admin.html')
       }
       else
-        res.send('<h4>invalid Credentials. Password Incorrect</h4>')
+        res.send('incorrect Password</h4>')
     }
     else
     res.send('<h4>User Not Found</h4>')
@@ -112,6 +115,19 @@ app.post("/addnewuser", async (req,res)=>{
 })
 })
 
+app.get('/removeUser',async (req,res)=>{
+  const deleteId=req.query.id;
+  const token=req.cookies.token;
+  const payload=jwt.verify(token,secretKey);
+  const userid=payload.userid;
+  const role=payload.role;
+
+  if(role==='admin'){
+    Login.removeUser(deleteId,()=>{
+      res.send();
+    })
+  }
+})
 
 
 app.get('/addPending',(req,res)=>{
@@ -121,11 +137,6 @@ app.get('/addPending',(req,res)=>{
   const userid=payload.userid;
   const medId=req.query.medid;
   const qty=req.query.qty;
-
-    // console.log(medId, qty);
-    // const token=req.cookies.token;
-    // const payload=jwt.verify(token,secretKey)
-    // console.log(payload)
 
     pendingTransactions.addPending(userid,medId,qty,(reply)=>{
       res.send(reply);
@@ -185,7 +196,11 @@ app.get('/getCustomerId',(req,res)=>{
   })
 })
 
-
+app.get('/getAllUsers',(req,res)=>{
+  Login.getAllUsers(result=>{
+    res.send(result);
+  })
+})
 
 app.get('/addNewCustomer',(req,res)=>{
   // const token=req.cookies.token;
