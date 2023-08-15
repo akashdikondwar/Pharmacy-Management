@@ -11,6 +11,7 @@ const medTable=document.getElementById('medTable');
 const medTableBody=document.getElementById('medTableBody');
 const medUpdatePanel=document.getElementById('medUpdatePanel');
 let counter=1;
+let filteredResults=[];
 
 showUsersButton.addEventListener('click',async event=>{
     counter=1;
@@ -40,16 +41,17 @@ searchInput.addEventListener('input',async event=>{
     counter=1;
     const searchTerm=searchInput.value;
     if(searchTerm!=''){
-        const data=await searchMedicine(searchTerm);
-        data.forEach(item => {
+        await searchMedicine(searchTerm);
+        filteredResults.forEach(item => {
             addMedRow(item);
             counter++;
         })
     }
 })
 
-function addMedRow(data){
+async function addMedRow(data){
     const tr=document.createElement('tr');
+    tr.setAttribute('class','newRows')
     medTableBody.appendChild(tr);
 
     const srno=document.createElement('td')
@@ -60,10 +62,22 @@ function addMedRow(data){
             td.innerHTML=data[key];
             tr.appendChild(td);
         })
-
-        tr.getElementsByTagName('td')[6].innerHTML=tr.getElementsByTagName('td')[6].innerHTML.split('T')[0]
+            tr.addEventListener('click',event=>{
+                const index=(tr.getElementsByTagName('td')[0].innerHTML)
+                showMedUpdatePanel(index)
+            })
         
-    }
+    
+            tr.getElementsByTagName('td')[6].innerHTML=tr.getElementsByTagName('td')[6].innerHTML.split('T')[0]
+        }
+        
+function showMedUpdatePanel(index){
+    medUpdatePanel.style.display='block';
+    const data=filteredResults[parseInt(index-1)]
+    document.getElementById('medid').value=data.id;
+    document.getElementById('medName').value=data.medicine_Name;
+    document.getElementById('category').value=data.category;
+}
 
 
 function addUserRow(data){
@@ -116,7 +130,7 @@ async function deleteUser(id){
 
 async function searchMedicine(searchTerm){
     const response=await fetch(`http://localhost:3000/searchMeds?keyword=${searchTerm}`)
-    const data=await response.json();
-    return data;
+    filteredResults=await response.json();
+    
 
 }

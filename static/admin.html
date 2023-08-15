@@ -158,31 +158,31 @@
         </table>
         </div>
 
-        <div id="medTable" style="margin:2vmax auto; width: 50%; height: 70vh; overflow-y: auto; display:none;">
+        <div id="medTable" style="margin:2vmax auto; width: 70%; height: 70vh; overflow-y: auto; display:none;">
             <label for="searchInput">Search Here: </label>
             <input type="text" id="searchInput" name="medSearch"  >
 
-            <table  class="table table-hover table-striped-columns" style="border: solid; border-color: cadetblue; border-top: none; margin-top: 2vmax; border-left: none; border-right: none; border-radius: 50px; ">
+            <table class="table table-hover table-striped-columns" style=" border: solid; border-color: cadetblue; border-top: none; margin-top: 2vmax; border-left: none; border-right: none; border-radius: 50px; ">
             <thead style="position: sticky; top: 0; width: 100%;">
                 <tr>
                 <th scope="col">#</th>
-                <th scope="col" style="width: 35%; max-width: 35%; overflow-wrap: break-word;">Med ID</th>
-                <th scope="col">Medicine Name</th>
+                <th scope="col" style="max-width: 35%; overflow-wrap: break-word;">Med ID</th>
+                <th scope="col" style="max-width: 35%;">Medicine Name</th>
                 <th scope="col">Category</th>
                 <th scope="col">Qty</th>
                 <th scope="col">Price</th>
-                <th scope="col">Expiry</th>
+                <th scope="col"style="max-width: 35%;">Expiry</th>
                 </tr>
             </thead>
             <tbody style="width: 100%; height: 100px; overflow-y: auto; " id="medTableBody">
            <!--here table rows will be added dynamically-->
             </tbody>
         </table>
-          </div>
+          </div> 
 <!-- __________________________________________________________________________________________________________________________ -->
           
           
-          <div id="medUpdatePanel" style=" margin: 10vh auto; display: none; height: 100vh; width: 40%;">
+          <div id="medUpdatePanel" style=" margin: 0 auto; display: none; height: 100vh; width: 40%;">
             <h6>Update Medicine</h6>
     
             <form
@@ -190,79 +190,45 @@
                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande','Lucida Sans', Arial, sans-serif;
               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),0 6px 20px 0 rgba(0, 0, 0, 0.19);"
       
-              action="http://localhost:3000/addnewuser" ;
+              action="http://localhost:3000/updateMed" ;
               method="post"
             >
               <!-- signup username -->
               <div class="mb-3">
                 <label for="medId" class="form-label">Med ID:</label>
-                <input type="text" class="form-control" name="medId" id="medId" readonly/>
+                <input type="text" class="form-control" id="medid" readonly/>
 
                 <label for="medName" class="form-label">Medicine Name:</label>
                 <input type="text" class="form-control" name="medName" id="medName" readonly/>
                 
-                <label for="medId" class="form-label">Med ID:</label>
-                <input type="text" class="form-control" name="medId" id="medId" readonly/>
+                <label for="category" class="form-label">Category:</label>
+                <input type="text" class="form-control" name="category" id="category" readonly/>
       
-                <div id="emailHelp" class="form-text">
-                  We'll never share your credentials with anyone.
-                </div>
               </div>
-              <!-- signup password -->
+            
               <div class="mb-3">
-                <label for="signupPass" class="form-label">Password</label>
+                <label for="newQty" class="form-label"
+                  >Quantity</label
+                >
                 <input
-                  type="password"
+                  type="number"
                   class="form-control"
-                  id="signupPass"
-                  name="password"
+                  id="newQty"
                   required
                 />
               </div>
-              <!-- signup confirm password -->
               <div class="mb-3">
-                <label for="confirmSignupPass" class="form-label"
-                  >Confirm Password</label
+                <label for="newExpiry" class="form-label"
+                  >Expiry</label
                 >
                 <input
-                  type="password"
+                  type="number"
                   class="form-control"
-                  id="confirmSignupPass"
+                  id="newExpiry"
                   required
                 />
               </div>
-              <!-- signup choose role -->
-              <div class="mb-4">
-                <label
-                  for="exampleCheck"
-                  class="form-label"
-                  style="display: block"
-                  >Choose your role:</label
-                >
-                <span>            
-                 
-                  <input
-                    type="radio"
-                    id="biller"
-                    name="role"
-                    value="biller"
-                    style="accent-color: #0d5e15"
-                    required
-                  />
-                  <label class="form-check-label" for="biller">Biller</label>
-                </span>
-                <span style="margin-left: 10%">
-                  <input
-                    type="radio"
-                    id="admin"
-                    name="role"
-                    style="accent-color: #0d5e15"
-                    value="admin"
-                    required
-                  />
-                  <label class="form-check-label" for="admin">Admin</label>
-                </span>
-              </div>
+              
               <div
                 class="mt-3"
                 style="
@@ -284,11 +250,27 @@
                     padding-right: 15%;
                   "
                 >
-                  Sign Up
+                  Update
+                </button>
+                <button
+                  class="btn btn-outline-success"
+                  style="
+                    margin: 0;
+                    display: inline;
+                    margin: auto;
+                    padding-left: 15%;
+                    padding-right: 15%;
+                  "
+                >
+                  Cancel
                 </button>
               </div>
             </form>
           </div>
+
+
+
+          
           
       
       <script src="./admin.js"></script>

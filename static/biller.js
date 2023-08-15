@@ -10,6 +10,7 @@ const discard=document.getElementById('discard');
 const totalAmount=document.getElementById('totalAmount');
 
 
+
 const customerName=document.getElementById('name')
 const address=document.getElementById('address')
 const phone=document.getElementById('phone')
@@ -104,11 +105,22 @@ quantityInput.addEventListener("input", (event) => {
   if (parseInt(quantityInput.value) < 1) {
     quantityInput.value = "";
   }
+  if(parseInt(quantityInput.value) > filteredResults[selectedIndex].available_qty){
+    quantityInput.style.border='red solid';
+    document.getElementById('qtyExceed').innerHTML='Quantity should be less than '+filteredResults[selectedIndex].available_qty;
+    document.getElementById('qtyExceed').style.display='block';
+  }
+  else {
+    document.getElementById('qtyExceed').style.display='none';
+    quantityInput.style.border='green solid'
+  }
 }); 
 
 quantityInput.addEventListener('keypress',async event=>{
   if(event.keyCode===13){      
     event.preventDefault();
+    if( parseInt(quantityInput.value) <= filteredResults[selectedIndex].available_qty){
+
     const qty=await quantityInput.value;
     const result=await filteredResults[selectedIndex];
     await addPending(result.id,qty);//adding new row data to database pending table.
@@ -116,6 +128,7 @@ quantityInput.addEventListener('keypress',async event=>{
     searchInput.value='';
     quantityInput.value='';
     searchInput.focus();
+    }
   }
 })
 

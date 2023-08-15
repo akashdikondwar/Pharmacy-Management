@@ -53,3 +53,10 @@ body{
     width: 15vmax;
     border-radius: 5px;
 }
+/* .newRows{
+    transition: 0.2s;
+}
+.newRows:hover{
+    transition: 0.2s;
+    background-color: rgb(100, 139, 110);
+} */
