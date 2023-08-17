@@ -1,4 +1,3 @@
-const { query } = require("express")
 const con=require("./dbConnection")
 class Stock
 {
@@ -41,7 +40,7 @@ class Stock
     
     static updateStock(addRemove,medid,qty,callback)
     {
-        var query=null;
+        let query=null;
                 if(addRemove==="add")
                 query=`update stock set available_qty=available_qty+${parseInt(qty)} where id=${medid}`            
                 else if(addRemove=="Remove")
@@ -66,6 +65,29 @@ class Stock
                 throw error;
             }
             callback(result); //isme object  banake nhi bhej sakte because, multiple results aa rahe hain...think we might send object also.
+        })
+    }
+
+    static  similarMedAdmin(keyword,callback)
+    {
+        const query=`select * from stock where medicine_name like '${keyword}%'`
+        con.query(query,(error,result)=>{
+            if(error){
+                console.log('error in similarMed method in stock.js')
+                throw error;
+            }
+            callback(result); //isme object  banake nhi bhej sakte because, multiple results aa rahe hain...think we might send object also.
+        })
+    }
+
+    static async updateMed(medid,qty,price,expiry,callback){
+        const query=`update stock set available_qty=${qty},price=${price},expiry='${expiry}' where id=${medid}`;
+
+        con.query(query,(error,result)=>{
+            if(error) 
+            callback(new Error,false);
+            else
+            callback(null,true) ;
         })
     }
 }

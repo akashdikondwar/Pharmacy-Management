@@ -40,10 +40,11 @@
               <svg xmlns="http://www.w3.org/2000/svg" height="2.5em" viewBox="0 0 512 512" ><style>svg{fill:#d60000; }</style><path d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z"/></svg>
               </a>
         </nav>
-
+<div style="display: flex; flex-direction: row; justify-content: center; transition: all 0.25s; overflow: hidden;">
         <div id="signUp-panel" style=" margin: 10vh auto; display: none; height: 100vh; width: 40%;">
     
       <form
+      id="signupForm"
         style="margin: auto; padding: 4%; border: 5px solid; border-radius: 10px; font-weight: bolder; border-color: teal; 
          font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande','Lucida Sans', Arial, sans-serif;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),0 6px 20px 0 rgba(0, 0, 0, 0.19);"
@@ -126,6 +127,7 @@
           "
         >
           <button
+          id="signupSubmitButton"
             type="submit"
             class="btn btn-outline-success"
             style="
@@ -159,18 +161,20 @@
         </div>
 
         <div id="medTable" style="margin:2vmax auto; width: 70%; height: 70vh; overflow-y: auto; display:none;">
+          <div style="position: sticky">
             <label for="searchInput">Search Here: </label>
             <input type="text" id="searchInput" name="medSearch"  >
+          </div>
 
             <table class="table table-hover table-striped-columns" style=" border: solid; border-color: cadetblue; border-top: none; margin-top: 2vmax; border-left: none; border-right: none; border-radius: 50px; ">
             <thead style="position: sticky; top: 0; width: 100%;">
                 <tr>
                 <th scope="col">#</th>
-                <th scope="col" style="max-width: 35%; overflow-wrap: break-word;">Med ID</th>
-                <th scope="col" style="max-width: 35%;">Medicine Name</th>
+                <th scope="col" style="max-width: 10%; overflow-wrap: break-word;">Med ID</th>
+                <th scope="col" style="max-width: 25%;">Medicine Name</th>
                 <th scope="col">Category</th>
-                <th scope="col">Qty</th>
                 <th scope="col">Price</th>
+                <th scope="col">Qty</th>
                 <th scope="col"style="max-width: 35%;">Expiry</th>
                 </tr>
             </thead>
@@ -182,10 +186,10 @@
 <!-- __________________________________________________________________________________________________________________________ -->
           
           
-          <div id="medUpdatePanel" style=" margin: 0 auto; display: none; height: 100vh; width: 40%;">
-            <h6>Update Medicine</h6>
+          <div id="medUpdatePanel" style=" margin: 0 auto; display: none; height: 100vh; width: 30%;">
     
             <form
+            id="medUpdateForm"
               style="margin: auto; padding: 4%; border: 5px solid; border-radius: 10px; font-weight: bolder; border-color: teal; 
                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande','Lucida Sans', Arial, sans-serif;
               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),0 6px 20px 0 rgba(0, 0, 0, 0.19);"
@@ -193,16 +197,16 @@
               action="http://localhost:3000/updateMed" ;
               method="post"
             >
-              <!-- signup username -->
+            <h6>Update Medicine:</h6>
               <div class="mb-3">
                 <label for="medId" class="form-label">Med ID:</label>
-                <input type="text" class="form-control" id="medid" readonly/>
+                <input type="text" class="form-control" name="medid" id="medid" readonly style="background-color: rgb(231, 229, 229); cursor: not-allowed;"/>
 
                 <label for="medName" class="form-label">Medicine Name:</label>
-                <input type="text" class="form-control" name="medName" id="medName" readonly/>
+                <input type="text" class="form-control" name="medName" id="medName" readonly style="background-color: rgb(231, 229, 229); cursor: not-allowed;"/>
                 
                 <label for="category" class="form-label">Category:</label>
-                <input type="text" class="form-control" name="category" id="category" readonly/>
+                <input type="text" class="form-control" name="category" id="category" readonly style="background-color: rgb(231, 229, 229); cursor: not-allowed;"/>
       
               </div>
             
@@ -212,8 +216,20 @@
                 >
                 <input
                   type="number"
+                  name="qty"
                   class="form-control"
                   id="newQty"
+                  required
+                />
+
+                <label for="newPrice" class="form-label"
+                  >Price</label
+                >
+                <input
+                  type="number"
+                  name="price"
+                  class="form-control"
+                  id="newPrice"
                   required
                 />
               </div>
@@ -222,7 +238,8 @@
                   >Expiry</label
                 >
                 <input
-                  type="number"
+                  type="date"
+                  name="expiry"
                   class="form-control"
                   id="newExpiry"
                   required
@@ -240,6 +257,7 @@
                 "
               >
                 <button
+                  id="medUpdateButton"
                   type="submit"
                   class="btn btn-outline-success"
                   style="
@@ -253,6 +271,7 @@
                   Update
                 </button>
                 <button
+                id="medUpdateCancelButton"
                   class="btn btn-outline-success"
                   style="
                     margin: 0;
@@ -267,7 +286,7 @@
               </div>
             </form>
           </div>
-
+        </div>
 
 
           

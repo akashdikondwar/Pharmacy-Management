@@ -20,20 +20,34 @@ app.use(express.static('static'));//allows you to serve static files (such as HT
 
 const secretKey='akash'
 
+//create a middleware to authenticate and authorize token
 
-app.get('/',(req,res)=>{
+function jwtAuthenticator(req,res,next){
   const token=req.cookies.token;
-  if(token!=='null'){
-    payload=jwt.verify(token,secretKey)
+
+  if(token==undefined || token=='null'){
+    res.sendFile(__dirname+'/index.html');
+  }
+  else{
+    jwt.verify(token,secretKey,(error,decoded)=>{
+      if(error)
+      res.status(401).send('Invalid Token')
+      else
+        req.decodedData=decoded;
+        next();
+    })
+  }
+}
+
+app.get('/',jwtAuthenticator,(req,res)=>{
+    payload=req.decodedData;
     const role=payload.role;
   
     if(role=='biller')
     res.sendFile(__dirname+'/static/biller.html')
     else if(role=='admin')
     res.sendFile(__dirname+'/static/admin.html');
-  }
-  else
-  res.sendFile(__dirname+'/index.html');
+  
 })
 
 
@@ -46,54 +60,54 @@ res.sendFile(__dirname+'/index.html')
 
 app.post("/login",(req,res)=>
 {
-  const username=req.body.username;
-  const password=req.body.password;
-  
-  var token=null;
-  Login.getHashedPass(username,async (reply,role,userid,hashedPass)=>{
-    if(reply==true){
-      if(await bcrypt.compare(password,hashedPass)){
-        token=jwt.sign({username: username, userid: userid, role: role },secretKey)
-        res.cookie('token',token)
-        if(role==="biller")
-        res.sendFile(__dirname+'/static/biller.html');
-      else if(role==="admin")
-      res.sendFile(__dirname+'/static/admin.html')
+    const username=req.body.username;
+    const password=req.body.password;
+    
+    Login.getHashedPass(username,async (reply,role,userid,hashedPass)=>{
+      if(reply==true){
+        if (await bcrypt.compare(password,hashedPass)){
+          token=jwt.sign({username: username, userid: userid, role: role },secretKey)
+          res.cookie('token',token)
+          if(role==="biller")
+          res.sendFile(__dirname+'/static/biller.html');
+
+        else if (role==="admin")
+        res.sendFile(__dirname+'/static/admin.html')
+        }
+        else
+          res.send('incorrect Password</h4>')
       }
       else
-        res.send('incorrect Password</h4>')
-    }
-    else
-    res.send('<h4>User Not Found</h4>')
-  })
+      res.send('<h4>User Not Found</h4>')
+    })
 })
 
 
 
-app.get('/continuePending', async (req,res)=>{
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
-  const userid=payload.userid;
-  pendingTransactions.getAllPending(userid,(result)=>{
-  res.send(result);// directly sending result here because first tried to send null. but one new thing learned. i was directly comparing the fetched response with null. but we first have to extract its json data. even if we sent data using res.send() still the data will go in json format. so apply json() method on fetched response and then compare it with null. otherwise directly send text 'null' using res.send().
-})
-})
-
-
-
-app.get('/cancelPending',(req,res)=>{
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
-  const userid=payload.userid;
-  
-  pendingTransactions.removeAllPending(userid,reply=>{
-    res.send(reply);
-  })
+app.get('/continuePending',jwtAuthenticator, async (req,res)=>{
+ 
+    payload=req.decodedData;
+    const userid=payload.userid;
+    pendingTransactions.getAllPending(userid,(result)=>{
+    res.send(result);// directly sending result here because first tried to send null. but one new thing learned. i was directly comparing the fetched response with null. but we first have to extract its json data. even if we sent data using res.send() still the data will go in json format. so apply json() method on fetched response and then compare it with null. otherwise directly send text 'null' using res.send().
+    })
 })
 
-app.get('/removeOnePending',(req,res)=>{
-    const token=req.cookies.token;
-    const payload=jwt.verify(token,secretKey)
+
+
+app.get('/cancelPending',jwtAuthenticator,(req,res)=>{
+ 
+    const payload=req.decodedData
+    const userid=payload.userid;
+    pendingTransactions.removeAllPending(userid,reply=>{
+      res.send(reply);
+    })
+})
+
+
+app.get('/removeOnePending',jwtAuthenticator,(req,res)=>{
+
+  const payload=req.decodedData;
     const userid=payload.userid;
     const medid=req.query.medid;
     const qty=req.query.qty;
@@ -101,9 +115,33 @@ app.get('/removeOnePending',(req,res)=>{
     pendingTransactions.cancelOnePending(userid,medid,qty,(reply)=>{
       res.send(reply);
     })
+  
   })
 
-app.get('/getTransIdSequence',(req,res)=>{
+  app.get('/updateMed',jwtAuthenticator, async (req,res)=>{
+
+    const payload=req.decodedData;
+    if(payload.role=='admin'){
+      const medid=req.query.medid;
+      const qty=req.query.qty;
+      const price=req.query.price;
+      const expiry=req.query.expiry;//if we want to update date in db, if date is saperated with -(hyphens) then send the date in inverted 
+      // commas in query. ie'yyyy-mm-dd' and if it is in direct number without hyphen ie yyyymmdd then we can send it directly.
+      // console.log(await Stock.updateMed(medid,qty,price,expiry))// static function should be async to make its call await.
+      await Stock.updateMed(medid,qty,price,expiry,(error,response)=>{//callback se true return hora but simple await se nhi hora. undefined return aa raha
+            if(error)
+            res.status(500).send('internal server error');
+            else 
+            res.send(response);
+          })
+    }
+    else 
+      res.send('Sorry, only admin can update medicines')
+  })
+    
+    
+
+app.get('/getTransIdSequence',jwtAuthenticator,(req,res)=>{
   const date=req.query.date;
   transaction.getTransIdSequence(date,(sequence)=>{
     res.send(String(sequence));
@@ -112,40 +150,50 @@ app.get('/getTransIdSequence',(req,res)=>{
 })
 
 
-app.post("/addnewuser", async (req,res)=>{
-    const username=req.body.username;
-    const password=req.body.password;
+app.post("/addnewuser",jwtAuthenticator, async (req,res)=>{
 
-    const hashedPass=await bcrypt.hash(password,hashingRounds);
-    const role=req.body.role;
-
-    Login.addNewLogin(username,hashedPass,role,(reply)=>{
-      if(reply)
-      res.send(`<h2>User:${username} with role: ${role} added successfully</h2>`);
-      else
-      res.send(`<h2>username=${username} already exists. use different username`)
-})
-})
-
-app.get('/removeUser',async (req,res)=>{
-  const deleteId=req.query.id;
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey);
-  const userid=payload.userid;
-  const role=payload.role;
-
-  if(role==='admin'){
-    Login.removeUser(deleteId,()=>{
-      res.send();
-    })
+  const payload=req.decodedData;
+  if(payload.role=='admin'){
+        const username=req.body.username;
+        const password=req.body.password;
+    
+        const hashedPass=await bcrypt.hash(password,hashingRounds);
+        const role=req.body.role;
+    
+        Login.addNewLogin(username,hashedPass,role,(reply)=>{
+          if(reply)
+          res.send(`<h2>User:${username} with role: ${role} added successfully</h2>`);
+          else
+          res.send(`<h2>username=${username} already exists. use different username`)
+      })
   }
+  else
+    res.send('Not allowed')
+})
+
+app.get('/removeUser',jwtAuthenticator,async (req,res)=>{
+  const payload=req.decodedData;
+
+  if(payload.role=='admin'){
+    const deleteId=req.query.id;
+    const token=req.cookies.token;
+    const userid=payload.userid;
+    const role=payload.role;
+
+    if(role==='admin'){
+      Login.removeUser(deleteId,()=>{
+        res.send();
+      })
+    }
+  }
+  else
+  res.send('not allowed')
 })
 
 
-app.get('/addPending',(req,res)=>{
+app.get('/addPending',jwtAuthenticator,(req,res)=>{
 
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
+  payload=req.decodedData;
   const userid=payload.userid;
   const medId=req.query.medid;
   const qty=req.query.qty;
@@ -156,12 +204,12 @@ app.get('/addPending',(req,res)=>{
 })
 
 
-app.get('/finalCheckout',(req,res)=>{
+app.get('/finalCheckout',jwtAuthenticator,(req,res)=>{
+  payload=req.decodedData;
   const transid=req.query.transid;
   const customerid=req.query.customerid;
 
   const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
   const billerid=payload.userid;
 
     transaction.finalCheckout(transid,customerid,billerid,(reply)=>{
@@ -173,10 +221,8 @@ app.get('/finalCheckout',(req,res)=>{
 // that medid from sent data to fill the html table and send that medid and qty to server also to add in pending transaction table;
 //after pressing checkout button, dont send the html page data here, use pendingTransaction table to add into transaction history;
 
-app.post('/changePass',(req,res)=>{ //even if logged in take id, pass, and newpass again
-  const token=req.cookies.token;
-  const payload=jwt.verify(token,secretKey)
-
+app.post('/changePass',jwtAuthenticator,(req,res)=>{ //even if logged in take id, pass, and newpass again
+  payload=req.decodedData;
   const userid=payload.userid;
 
     const password=req.body.password;
@@ -188,16 +234,22 @@ app.post('/changePass',(req,res)=>{ //even if logged in take id, pass, and newpa
     })
 })
 
-app.get("/searchMeds",(req,res)=>{
+app.get("/searchMeds/biller",(req,res)=>{
   var keyword=req.query.keyword;
   Stock.similarMed(keyword,(result)=>{
     res.send(result);
   })
 })
 
+app.get("/searchMeds/admin",(req,res)=>{
+  var keyword=req.query.keyword;
+  Stock.similarMedAdmin(keyword,(result)=>{
+    res.send(result);
+  })
+})
 
 
-app.get('/getCustomerId',(req,res)=>{
+app.get('/getCustomerId',jwtAuthenticator,(req,res)=>{
   const phone=req.query.phone;
 
   Customer.checkIfCustomerExist(phone,(reply,customerid)=>{
@@ -208,17 +260,18 @@ app.get('/getCustomerId',(req,res)=>{
   })
 })
 
-app.get('/getAllUsers',(req,res)=>{
-  Login.getAllUsers(result=>{
-    res.send(result);
-  })
+app.get('/getAllUsers',jwtAuthenticator,(req,res)=>{
+  const payload=req.decodedData;
+  if(payload.role=='admin'){
+    Login.getAllUsers(result=>{
+      res.send(result);
+    })
+  }
+  else
+  res.send('Not Allowed')
 })
 
-app.get('/addNewCustomer',(req,res)=>{
-  // const token=req.cookies.token;
-  // const payload=jwt.verify(token,secretKey)
-  // const userid=payload.userid;
-
+app.get('/addNewCustomer',jwtAuthenticator,(req,res)=>{
   const phone=req.query.phone;
   const name=req.query.name;
   const Address=req.query.address;

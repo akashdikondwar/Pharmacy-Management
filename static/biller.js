@@ -191,7 +191,11 @@ function showResults() {
       item.addEventListener('keypress', (event) => {
           if (event.keyCode === 13)
           selectResult(index);
-      });                           // removed this because whats its use??
+      }); 
+      item.addEventListener('click',event=>{
+        selectedIndex=item.getAttribute('data-index');
+        selectResult(selectedIndex);
+      })                          // removed this because whats its use??
       searchResults.appendChild(item);
   });
   if (filteredResults.length > 0)
@@ -253,7 +257,7 @@ function selectResult(index) {
 
 async function filterResults(searchTerm) {// here filterresults ko async banaya toh sabhi filterresults ke saamne await lagana padega
   searchTerm = searchTerm.toLowerCase();
-  const response= await fetch(`http://localhost:3000/searchmeds?keyword=${searchTerm}`)
+  const response= await fetch(`http://localhost:3000/searchmeds/biller?keyword=${searchTerm}`)
   const data= await response.json();        //to extract json data from response.
   filteredResults=data;
 }

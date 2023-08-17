@@ -10,8 +10,49 @@ const transactionHistoryButton=document.getElementById('transactionHistory');
 const medTable=document.getElementById('medTable');
 const medTableBody=document.getElementById('medTableBody');
 const medUpdatePanel=document.getElementById('medUpdatePanel');
+const signupForm=document.getElementById('signupForm')
+const confirmSignupPass=document.getElementById('confirmSignupPass');
+const signupPass=document.getElementById('signupPass');
+const signupSubmitButton=document.getElementById('signupSubmitButton')
+const medUpdateForm=document.getElementById('medUpdateForm')
+
+const medid=document.getElementById('medid')
+const newQty=document.getElementById('newQty')
+const newPrice=document.getElementById('newPrice')
+let newExpiry=document.getElementById('newExpiry')
+
+
 let counter=1;
 let filteredResults=[];
+
+medUpdateForm.addEventListener('submit',async event=>{
+    event.preventDefault()
+    await fetch(`http://localhost:3000/updateMed?medid=${medid.value}&qty=${newQty.value}&price=${newPrice.value}&expiry=${newExpiry.value}`)
+    
+    medTableBody.innerHTML='';
+    const searchTerm=searchInput.value;
+    if(searchTerm!=''){
+        await searchMedicine(searchTerm);
+        filteredResults.forEach(item => {
+            addMedRow(item);
+            counter++;
+        })
+    }
+})
+
+
+confirmSignupPass.addEventListener('input',event=>{
+    if(confirmSignupPass.value !== signupPass.value){
+      confirmSignupPass.style.border='red solid'
+    }
+    else
+    confirmSignupPass.style.border='green solid'
+})
+
+signupForm.addEventListener('submit',event=>{
+    if(confirmSignupPass.value!==signupPass.value)
+        event.preventDefault();
+})
 
 showUsersButton.addEventListener('click',async event=>{
     counter=1;
@@ -36,6 +77,10 @@ updateStockButton.addEventListener('click',event=>{
     searchInput.focus();
 })
 
+document.getElementById('medUpdateCancelButton').addEventListener('click',event=>{
+    medUpdatePanel.style.display='none'
+})
+
 searchInput.addEventListener('input',async event=>{
     medTableBody.innerHTML='';
     counter=1;
@@ -49,11 +94,11 @@ searchInput.addEventListener('input',async event=>{
     }
 })
 
+
 async function addMedRow(data){
     const tr=document.createElement('tr');
     tr.setAttribute('class','newRows')
     medTableBody.appendChild(tr);
-
     const srno=document.createElement('td')
     srno.innerHTML=counter;
     tr.appendChild(srno);
@@ -66,11 +111,21 @@ async function addMedRow(data){
                 const index=(tr.getElementsByTagName('td')[0].innerHTML)
                 showMedUpdatePanel(index)
             })
+
+            tr.getElementsByTagName('td')[6].innerHTML=tr.getElementsByTagName('td')[6].innerHTML.split('T')[0];
+            console.log(tr.getElementsByTagName('td')[6].innerHTML);
+            var currDate=new Date();
+            var expiryDate=new Date(data.expiry);
+
+            if(currDate.getTime() > expiryDate.getTime()){
+                tr.style.borderTop='brown solid'
+                tr.style.borderBottom='brown solid'
+                tr.style.fontWeight='700'
+            }
+}
         
-    
-            tr.getElementsByTagName('td')[6].innerHTML=tr.getElementsByTagName('td')[6].innerHTML.split('T')[0]
-        }
-        
+
+
 function showMedUpdatePanel(index){
     medUpdatePanel.style.display='block';
     const data=filteredResults[parseInt(index-1)]
@@ -100,13 +155,11 @@ function addUserRow(data){
             deleteUser(id);
         }
     })
-
     srno.innerHTML=counter;
     userid.innerHTML=data.userid;
     username.innerHTML=data.username;
     role.innerHTML=data.role;
     removeButton.innerHTML='Remove'
-
     tr.appendChild(srno)
     tr.appendChild(userid)
     tr.appendChild(username)
@@ -114,6 +167,7 @@ function addUserRow(data){
     tr.appendChild(div)
     div.appendChild(removeButton)
 }
+
 
 function hideAll(){
     signupPanel.style.display='none';
@@ -129,7 +183,7 @@ async function deleteUser(id){
 }
 
 async function searchMedicine(searchTerm){
-    const response=await fetch(`http://localhost:3000/searchMeds?keyword=${searchTerm}`)
+    const response=await fetch(`http://localhost:3000/searchMeds/admin?keyword=${searchTerm}`)
     filteredResults=await response.json();
     
 
